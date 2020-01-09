@@ -7,6 +7,7 @@ import android.content.ComponentName;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Display;
 import android.view.MotionEvent;
 import android.view.View;
@@ -105,8 +106,9 @@ public class MainActivity extends AppCompatActivity{
                         if(xPrev != -1 && yPrev != -1)
                             if(selectedWidget != null) {
                                 moveWidgetRelative(selectedWidget,
-                                        Math.getPercent(x - xPrev, canvas.getWidth()),
-                                        Math.getPercent(y - yPrev, canvas.getHeight()));
+                                        Math.getPercent(x - xPrev, canvas.getMeasuredWidth()),
+                                        Math.getPercent(y - yPrev, canvas.getMeasuredHeight()));
+                                Log.d("XY", "" + selectedWidget.getX() + " " + selectedWidget.getY());
                                 selectedWidget.updateView();
                             }
                     }
@@ -139,16 +141,16 @@ public class MainActivity extends AppCompatActivity{
             @Override
             public void run() {
                 Display display = getWindowManager().getDefaultDisplay();
-                int height = 0;
-                int Width = 0;
-                int X = 0;
+                float height = 0;
+                float Width = 0;
+                float X = 0;
                 while(height <= 0 || Width <= 0){
                     height = findViewById(R.id.canvasContainer).getHeight();
                     Width = findViewById(R.id.canvasContainer).getWidth();
                     X = (int) findViewById(R.id.canvasContainer).getX();
                 }
-                int width = (display.getWidth() * height) / display.getHeight();
-                canvas.setLayoutParams(new ConstraintLayout.LayoutParams(width, height));
+                float width = (1080 * height) / 2280;
+                canvas.setLayoutParams(new ConstraintLayout.LayoutParams((int)width, (int)height));
 
                 float x = X + (Width / 2) - (width / 2);
                 moveWidgetAbsolute(canvas, x, canvas.getY());

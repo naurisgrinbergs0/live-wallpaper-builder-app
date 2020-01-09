@@ -38,37 +38,8 @@ public abstract class Widget {
         this.parent = parent;
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.O)
-    public static Widget createWidget(WidgetType type, Context context, ConstraintLayout canvas){
-        Widget widget = null;
-        switch (type){
-            case CLOCK:
-                widget = new ClockWidget(context, canvas);
-                break;
-        }
-        return widget;
-    }
-
-    public void placeView(){
-        this.x = getCenteredX(getWidth());
-        this.y = getCenteredY(getHeight());
-        ((ConstraintLayout)parent).addView(this.view);
-    }
-
     public void setParent(View parent){
         this.parent = parent;
-    }
-
-    public void setType(WidgetType type){
-        this.type = type;
-    }
-
-    public WidgetType getType(){
-        return type;
-    }
-
-    public View getView(){
-        return this.view;
     }
 
     public void setX(float x){
@@ -93,4 +64,22 @@ public abstract class Widget {
             return;
     }
     public abstract void renderWidget(Canvas canvas);
+
+
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    public static Widget createWidget(WidgetType type, Context context, ConstraintLayout canvas){
+        Widget widget = null;
+        switch (type){
+            case CLOCK:
+                widget = new ClockWidget(context, canvas);
+                break;
+        }
+        return widget;
+    }
+
+    public void placeView(){
+        this.x = getCenteredX(getWidth());
+        this.y = getCenteredY(getHeight());
+        ((ConstraintLayout)parent).addView(this.view);
+    }
 }

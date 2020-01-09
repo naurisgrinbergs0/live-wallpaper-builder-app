@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Paint;
 import android.graphics.Typeface;
 import android.os.Handler;
 import android.service.wallpaper.WallpaperService;
@@ -40,9 +41,6 @@ public class LiveWallpaperService extends WallpaperService {
     private static float textPercent = 50;
 
     private ArrayList<Widget> widgets;
-
-    private float canvasWidth;
-    private float canvasHeight;
 
     @Override
     public Engine onCreateEngine() {
@@ -96,6 +94,11 @@ public class LiveWallpaperService extends WallpaperService {
 
                 // clear canvas
                 canvas.drawColor(Color.BLACK);
+
+                Paint p = new Paint();
+                p.setColor(Color.GREEN);
+                p.setStrokeWidth(5);
+                canvas.drawLine(0, 0, 500, 500, p);
 
                 for(int i = 0; i < widgets.size(); i++){
                     widgets.get(i).renderWidget(canvas);

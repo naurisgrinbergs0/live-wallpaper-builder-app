@@ -6,6 +6,7 @@ import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Build;
 import android.text.TextPaint;
+import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 
@@ -23,6 +24,7 @@ public class ClockWidget extends Widget {
     private float fontSizeLayout;
     private float fontSizeCanvas;
     private int color;
+    private TextPaint paint;
 
     @RequiresApi(api = Build.VERSION_CODES.O)
     public ClockWidget(Context context, View parent){
@@ -35,6 +37,7 @@ public class ClockWidget extends Widget {
         fontFamily = ResourcesCompat.getFont(context, R.font.frederickathe_great_regular);
         setFontSizeForPercentageLayout(.5f);
         color = Color.RED;
+        paint = new TextPaint();
     }
 
     @RequiresApi(api = Build.VERSION_CODES.O)
@@ -75,7 +78,7 @@ public class ClockWidget extends Widget {
 
     @RequiresApi(api = Build.VERSION_CODES.O)
     private void setFontSizeForCanvas(TextPaint paint, Canvas canvas){
-        float desiredWidth = canvas.getWidth() * (getWidth() / parent.getMeasuredWidth());
+        float desiredWidth = canvas.getWidth() * getWidth();
         fontSizeCanvas = (paint.getTextSize() * desiredWidth) / paint.measureText(text, 0, text.length());
     }
 
@@ -88,18 +91,20 @@ public class ClockWidget extends Widget {
         ((TextView)view).setTypeface(fontFamily);
         ((TextView)view).setTextColor(color);
         ((TextView)view).setTextSize(fontSizeLayout);
-        view.setX(Math.getValue(x, parent.getWidth()));
-        view.setY(Math.getValue(y, parent.getHeight()));
+        view.setX(Math.getValue(x, parent.getMeasuredWidth()));
+        view.setY(Math.getValue(y, parent.getMeasuredHeight()));
     }
 
     @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
     public void renderWidget(Canvas canvas) {
-        TextPaint paint = new TextPaint();
         paint.setTypeface(fontFamily);
         paint.setColor(color);
-        setFontSizeForCanvas(paint, canvas);
-        paint.setTextSize(fontSizeCanvas * context.getResources().getDisplayMetrics().density);
-        canvas.drawText(getText(), 300, 300, paint);
+        if(fontSizeCanvas == 0)
+            setFontSizeForCanvas(paint, canvas);
+        paint.setTextSize(fontSizeCanvas);
+        canvas.drawText(getText(),
+                Math.getValue(x, canvas.getWidth()),
+                Math.getValue(y, canvas.getHeight()), paint);
     }
 }
