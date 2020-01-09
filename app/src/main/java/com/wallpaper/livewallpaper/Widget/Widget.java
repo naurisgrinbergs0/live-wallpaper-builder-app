@@ -59,9 +59,6 @@ public abstract class Widget {
         this.parent = parent;
     }
 
-    public WidgetType getType(){
-        return this.type;
-    }
     public void setType(WidgetType type){
         this.type = type;
     }
