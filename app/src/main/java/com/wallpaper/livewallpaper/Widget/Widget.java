@@ -63,6 +63,10 @@ public abstract class Widget {
         this.type = type;
     }
 
+    public WidgetType getType(){
+        return type;
+    }
+
     public View getView(){
         return this.view;
     }
