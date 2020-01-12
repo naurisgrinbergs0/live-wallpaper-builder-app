@@ -17,6 +17,7 @@ public class ClockWidget extends Widget {
 
     private String text;
     private TextPaint paint;
+    private float fontSize;
 
     @RequiresApi(api = Build.VERSION_CODES.O)
     public ClockWidget(Context context){
@@ -53,14 +54,16 @@ public class ClockWidget extends Widget {
         paint = new TextPaint();
         paint.setColor(Color.RED);
         paint.setTextSize(20 * context.getResources().getDisplayMetrics().density);
+        fontSize = 20 / canvasHeight;
         super.init(canvasWidth, canvasHeight);
     }
 
     @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
     public void draw(Canvas canvas) {
+        paint.setTextSize(canvas.getClipBounds().height() * fontSize * context.getResources().getDisplayMetrics().density);
         canvas.drawText(getText(),
-                Math.getValue(x, canvas.getWidth()),
-                Math.getValue(y, canvas.getHeight()), paint);
+                Math.getValue(x, canvas.getClipBounds().width()),
+                Math.getValue(y, canvas.getClipBounds().height()), paint);
     }
 }

@@ -6,8 +6,10 @@ import android.app.WallpaperManager;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Point;
 import android.os.Build;
 import android.os.Bundle;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Display;
 import android.view.MotionEvent;
@@ -39,15 +41,25 @@ public class MainActivity extends AppCompatActivity{
 
     private float[] xyPrev = {-1,-1};
 
+    public static float REAL_WIDTH;
+    public static float REAL_HEIGHT;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        setScreenSize();
         setUpFields();
         setUpWidgetList();
         setUpEventListeners();
+    }
+
+    private void setScreenSize() {
+        DisplayMetrics displayMetrics = new DisplayMetrics();
+        getWindowManager().getDefaultDisplay().getRealMetrics(displayMetrics);
+        REAL_HEIGHT = displayMetrics.heightPixels;
+        REAL_WIDTH = displayMetrics.widthPixels;
     }
 
     @SuppressLint("ResourceType")
@@ -95,11 +107,11 @@ public class MainActivity extends AppCompatActivity{
                         if(xyPrev[0] != -1 && xyPrev[1] != -1)
                             if(canvas.getSelectedWidget() != null) {
                                 moveWidgetRelative(canvas.getSelectedWidget(),
-                                        Math.getPercent(xy[0] - xyPrev[0], canvas.getWidth()),
-                                        Math.getPercent(xy[1] - xyPrev[1], canvas.getHeight()));
+                                        Math.getPercent(xy[0] - xyPrev[0], canvas.getMeasuredWidth()),
+                                        Math.getPercent(xy[1] - xyPrev[1], canvas.getMeasuredHeight()));
                                 Log.d("XY", ""
-                                        + Math.getValue(canvas.getWidgets().get(0).getX(), canvas.getWidth())
-                                        + " " + Math.getValue(canvas.getWidgets().get(0).getY(), canvas.getHeight()));
+                                        + Math.getValue(canvas.getWidgets().get(0).getX(), canvas.getMeasuredWidth())
+                                        + " " + Math.getValue(canvas.getWidgets().get(0).getY(), canvas.getMeasuredHeight()));
                             }
                     }
                 }

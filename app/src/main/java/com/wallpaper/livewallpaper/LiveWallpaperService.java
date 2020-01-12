@@ -5,6 +5,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.res.Resources;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -87,15 +88,8 @@ public class LiveWallpaperService extends WallpaperService {
                 Canvas canvas = holder.lockCanvas();
                 canvas.save();
 
-                // clear canvas
-                canvas.drawColor(Color.BLACK);
-
-                Paint p = new Paint();
-                p.setColor(Color.GREEN);
-                p.setStrokeWidth(5);
-                canvas.drawLine(0, 0, 500, 500, p);
-
                 for(int i = 0; i < widgets.size(); i++){
+                    canvas.drawColor(Color.BLACK);
                     widgets.get(i).draw(canvas);
                 }
 
