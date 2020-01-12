@@ -1,7 +1,5 @@
 package com.wallpaper.livewallpaper.Widget;
 
-import android.view.View;
-
 public class WidgetTransformation {
 
     public static void moveWidgetRelative(Widget widget, float x, float y){
@@ -9,16 +7,21 @@ public class WidgetTransformation {
         widget.setY(widget.getY() + y);
     }
 
-    public static void moveWidgetAbsolute(View view, float x, float y){
-        view.setX(x);
-        view.setY(y);/////////////////////////////////////////////////////////////////////////////////////////
+    public static void moveWidgetAbsolute(Widget widget, float x, float y){
+        widget.setX(x);
+        widget.setY(y);
     }
 
-    public static float getCenteredX(float width){
-        return .5f - (width / 2);
+    public static void centerWidgetHorizontal(Widget widget, float parentWidth){
+        widget.setX(.5f - (widget.getWidth(parentWidth) / 2));
     }
 
-    public static float getCenteredY(float height){
-        return .5f - (height / 2);
+    public static void centerWidgetVertical(Widget widget, float parentHeight){
+        widget.setY(.5f - (widget.getHeight(parentHeight) / 2));
+    }
+
+    public static void centerWidget(Widget widget, float parentWidth, float parentHeight){
+        centerWidgetHorizontal(widget, parentWidth);
+        centerWidgetVertical(widget, parentHeight);
     }
 }

@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.app.WallpaperManager;
 import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
@@ -11,6 +12,7 @@ import android.util.Log;
 import android.view.Display;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ListView;
@@ -25,24 +27,17 @@ import com.wallpaper.livewallpaper.Widget.Widget.*;
 import java.util.ArrayList;
 
 import static com.wallpaper.livewallpaper.Widget.WidgetTransformation.*;
-import static com.wallpaper.livewallpaper.Math.*;
 
 public class MainActivity extends AppCompatActivity{
 
     private Button startServiceBtn;
-    private ConstraintLayout canvas;
+    private BuilderCanvas canvas;
     private Button chooseWidgetBtn;
-
-    private Widget selectedWidget;
 
     private Dialog chooseWidgetDialog;
     private ArrayList<WidgetRow> availableWidgetList;
-    private ArrayList<Widget> onscreenWidgetList;
 
-    private float xPrev = -1;
-    private float yPrev = -1;
-
-    private CanvasViewUpdateTask cvut;
+    private float[] xyPrev = {-1,-1};
 
 
     @Override
@@ -53,8 +48,6 @@ public class MainActivity extends AppCompatActivity{
         setUpFields();
         setUpWidgetList();
         setUpEventListeners();
-        setUpCanvas();
-        startBackgroundUpdates();
     }
 
     @SuppressLint("ResourceType")
@@ -65,9 +58,6 @@ public class MainActivity extends AppCompatActivity{
 
         chooseWidgetDialog = new Dialog(this, android.R.style.Theme_Light_NoTitleBar_Fullscreen);
         availableWidgetList = new ArrayList<WidgetRow>();
-        onscreenWidgetList = new ArrayList<Widget>();
-
-        cvut = new CanvasViewUpdateTask();
     }
 
     @SuppressLint("ClickableViewAccessibility")
@@ -76,7 +66,7 @@ public class MainActivity extends AppCompatActivity{
         startServiceBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Widget.ALL_ONSCREEN_WIDGETS = onscreenWidgetList;
+                Widget.ALL_ONSCREEN_WIDGETS = canvas.getWidgets();
 
                 // start service
                 Intent serviceIntent = new Intent(getApplicationContext(), LiveWallpaperService.class);
@@ -91,31 +81,30 @@ public class MainActivity extends AppCompatActivity{
             }
         });
 
+
         canvas.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
-                float x = event.getX();
-                float y = event.getY();
+                float[] xy = {event.getX(), event.getY()};
 
                 switch (event.getActionMasked()){
                     case MotionEvent.ACTION_DOWN:{
-                        xPrev = -1;
-                        yPrev = -1;
+                        xyPrev = new float[]{-1,-1};
                     }
                     case MotionEvent.ACTION_MOVE:{
-                        if(xPrev != -1 && yPrev != -1)
-                            if(selectedWidget != null) {
-                                moveWidgetRelative(selectedWidget,
-                                        Math.getPercent(x - xPrev, canvas.getMeasuredWidth()),
-                                        Math.getPercent(y - yPrev, canvas.getMeasuredHeight()));
-                                Log.d("XY", "" + selectedWidget.getX() + " " + selectedWidget.getY());
-                                selectedWidget.updateView();
+                        if(xyPrev[0] != -1 && xyPrev[1] != -1)
+                            if(canvas.getSelectedWidget() != null) {
+                                moveWidgetRelative(canvas.getSelectedWidget(),
+                                        Math.getPercent(xy[0] - xyPrev[0], canvas.getWidth()),
+                                        Math.getPercent(xy[1] - xyPrev[1], canvas.getHeight()));
+                                Log.d("XY", ""
+                                        + Math.getValue(canvas.getWidgets().get(0).getX(), canvas.getWidth())
+                                        + " " + Math.getValue(canvas.getWidgets().get(0).getY(), canvas.getHeight()));
                             }
                     }
                 }
 
-                xPrev = x;
-                yPrev = y;
+                xyPrev = xy;
 
                 return true;
             }
@@ -136,32 +125,6 @@ public class MainActivity extends AppCompatActivity{
         });
     }
 
-    private void setUpCanvas(){
-        findViewById(R.id.canvasContainer).post(new Runnable() {
-            @Override
-            public void run() {
-                Display display = getWindowManager().getDefaultDisplay();
-                float height = 0;
-                float Width = 0;
-                float X = 0;
-                while(height <= 0 || Width <= 0){
-                    height = findViewById(R.id.canvasContainer).getHeight();
-                    Width = findViewById(R.id.canvasContainer).getWidth();
-                    X = (int) findViewById(R.id.canvasContainer).getX();
-                }
-                float width = (1080 * height) / 2280;
-                canvas.setLayoutParams(new ConstraintLayout.LayoutParams((int)width, (int)height));
-
-                float x = X + (Width / 2) - (width / 2);
-                moveWidgetAbsolute(canvas, x, canvas.getY());
-            }
-        });
-    }
-
-    private void startBackgroundUpdates(){
-        cvut.execute();
-    }
-
     private void setUpWidgetList(){
         availableWidgetList.add(new WidgetRow(WidgetType.CLOCK,"Time"));
         availableWidgetList.add(new WidgetRow(WidgetType.TEXT,"Text"));
@@ -179,14 +142,18 @@ public class MainActivity extends AppCompatActivity{
             @RequiresApi(api = Build.VERSION_CODES.O)
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Widget widget = Widget.createWidget(
-                        ((WidgetRow)parent.getItemAtPosition(position)).getItemType(), getApplicationContext(), canvas);
-                widget.setParent(canvas);
-                onscreenWidgetList.add(widget);
-                widget.placeView();
-                selectedWidget = widget;
+                Context context = getApplicationContext();
+                Widget widget = null;
 
-                cvut.setWidgetsToUpdate(onscreenWidgetList);
+                switch (((WidgetRow)parent.getItemAtPosition(position)).getItemType()){
+                    case CLOCK:{
+                        widget = new ClockWidget(context);
+                        break;
+                    }
+                }
+
+                canvas.addWidget(widget);
+                canvas.setSelectedWidget(widget);
 
                 chooseWidgetDialog.dismiss();
             }

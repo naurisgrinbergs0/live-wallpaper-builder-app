@@ -8,20 +8,15 @@ import android.content.IntentFilter;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.graphics.Typeface;
 import android.os.Handler;
 import android.service.wallpaper.WallpaperService;
-import android.text.TextPaint;
 import android.view.SurfaceHolder;
-
-import androidx.core.content.res.ResourcesCompat;
 
 import com.wallpaper.livewallpaper.Widget.Widget;
 
 import java.util.ArrayList;
 
 import static com.wallpaper.livewallpaper.Math.*;
-import static com.wallpaper.livewallpaper.Widget.WidgetTransformation.*;
 
 public class LiveWallpaperService extends WallpaperService {
 
@@ -101,7 +96,7 @@ public class LiveWallpaperService extends WallpaperService {
                 canvas.drawLine(0, 0, 500, 500, p);
 
                 for(int i = 0; i < widgets.size(); i++){
-                    widgets.get(i).renderWidget(canvas);
+                    widgets.get(i).draw(canvas);
                 }
 
                 canvas.restore();
