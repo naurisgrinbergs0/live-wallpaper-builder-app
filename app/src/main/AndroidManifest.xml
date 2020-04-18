@@ -18,7 +18,7 @@
         android:theme="@style/Theme.AppCompat.Light.NoActionBar"
         tools:ignore="AllowBackup,GoogleAppIndexingWarning">
 
-        <activity android:name=".MainActivity">
+        <activity android:name=".Activities.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -26,7 +26,7 @@
         </activity>
 
         <service
-            android:name=".LiveWallpaperService"
+            android:name=".Services.LiveWallpaperService"
             android:enabled="true"
             android:label="Live Wallpaper"
             android:permission="android.permission.BIND_WALLPAPER">

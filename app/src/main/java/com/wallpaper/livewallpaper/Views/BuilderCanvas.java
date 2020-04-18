@@ -1,24 +1,17 @@
-package com.wallpaper.livewallpaper;
+package com.wallpaper.livewallpaper.Views;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
-import android.content.res.Resources;
 import android.graphics.Canvas;
-import android.graphics.Rect;
-import android.os.AsyncTask;
 import android.os.Build;
 import android.util.AttributeSet;
-import android.util.Log;
-import android.view.Display;
 import android.view.View;
-import android.view.ViewGroup;
 
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.constraintlayout.widget.ConstraintLayout;
 
-import com.wallpaper.livewallpaper.Widget.ClockWidget;
-import com.wallpaper.livewallpaper.Widget.Widget;
+import com.wallpaper.livewallpaper.Activities.MainActivity;
+import com.wallpaper.livewallpaper.Widgets.Widget;
 
 import java.util.ArrayList;
 
@@ -50,6 +43,14 @@ public class BuilderCanvas extends View {
     }
 
     @Override
+    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+        float height = MeasureSpec.getSize(heightMeasureSpec);
+        float width = (MainActivity.REAL_WIDTH * height) / MainActivity.REAL_HEIGHT;
+
+        setMeasuredDimension((int)width, (int)height);
+    }
+
+    @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
         for(Widget widget : widgets)
@@ -61,13 +62,5 @@ public class BuilderCanvas extends View {
         setLayoutParams(layoutParams);
 
         invalidate();
-    }
-
-    @Override
-    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        float height = MeasureSpec.getSize(heightMeasureSpec);
-        float width = (MainActivity.REAL_WIDTH * height) / MainActivity.REAL_HEIGHT;
-
-        setMeasuredDimension((int)width, (int)height);
     }
 }

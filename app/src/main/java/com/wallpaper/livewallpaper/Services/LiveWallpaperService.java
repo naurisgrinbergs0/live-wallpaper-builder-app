@@ -1,23 +1,21 @@
-package com.wallpaper.livewallpaper;
+package com.wallpaper.livewallpaper.Services;
 
 import android.annotation.SuppressLint;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.res.Resources;
 import android.graphics.Canvas;
 import android.graphics.Color;
-import android.graphics.Paint;
 import android.os.Handler;
 import android.service.wallpaper.WallpaperService;
 import android.view.SurfaceHolder;
 
-import com.wallpaper.livewallpaper.Widget.Widget;
+import com.wallpaper.livewallpaper.Widgets.Widget;
 
 import java.util.ArrayList;
 
-import static com.wallpaper.livewallpaper.Math.*;
+import static com.wallpaper.livewallpaper.ServiceClass.*;
 
 public class LiveWallpaperService extends WallpaperService {
 
@@ -40,7 +38,7 @@ public class LiveWallpaperService extends WallpaperService {
 
     @Override
     public Engine onCreateEngine() {
-        widgets = Widget.ALL_ONSCREEN_WIDGETS;
+        widgets = Widget.allOnscreenWidgets;
         return new LiveWallpaperEngine();
     }
 

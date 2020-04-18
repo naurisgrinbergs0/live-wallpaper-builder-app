@@ -1,4 +1,4 @@
-package com.wallpaper.livewallpaper;
+package com.wallpaper.livewallpaper.Activities;
 
 import android.annotation.SuppressLint;
 import android.app.Dialog;
@@ -6,38 +6,43 @@ import android.app.WallpaperManager;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Point;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
 import android.util.Log;
-import android.view.Display;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.viewpager.widget.PagerAdapter;
+import androidx.viewpager.widget.ViewPager;
 
-import com.wallpaper.livewallpaper.Widget.*;
-import com.wallpaper.livewallpaper.Widget.Widget.*;
+import com.google.android.material.tabs.TabLayout;
+import com.wallpaper.livewallpaper.ListAdapters.TabsPagerAdapter;
+import com.wallpaper.livewallpaper.Views.BuilderCanvas;
+import com.wallpaper.livewallpaper.Services.LiveWallpaperService;
+import com.wallpaper.livewallpaper.R;
+import com.wallpaper.livewallpaper.ServiceClass;
+import com.wallpaper.livewallpaper.ListAdapters.WidgetListAdapter;
+import com.wallpaper.livewallpaper.ListAdapters.WidgetRow;
+import com.wallpaper.livewallpaper.Widgets.*;
+import com.wallpaper.livewallpaper.Widgets.Widget.*;
 
 import java.util.ArrayList;
 
-import static com.wallpaper.livewallpaper.Widget.WidgetTransformation.*;
+import static com.wallpaper.livewallpaper.Widgets.WidgetTransformation.*;
 
 public class MainActivity extends AppCompatActivity{
 
-    private Button startServiceBtn;
     private BuilderCanvas canvas;
-    private Button chooseWidgetBtn;
-
     private Dialog chooseWidgetDialog;
     private ArrayList<WidgetRow> availableWidgetList;
+    private ViewPager optionsViewPager;
 
     private float[] xyPrev = {-1,-1};
 
@@ -53,6 +58,16 @@ public class MainActivity extends AppCompatActivity{
         setUpFields();
         setUpWidgetList();
         setUpEventListeners();
+        setUpPager();
+    }
+
+    private void setUpPager() {
+        TabsPagerAdapter pagerAdapter = new TabsPagerAdapter(getSupportFragmentManager());
+        pagerAdapter.setTabs(new String[]{"Widgets", "Background", "Colors", "A", "B", "Infinite"});
+        optionsViewPager.setAdapter(pagerAdapter);
+        TabLayout tabLayout = findViewById(R.id.optionsTabLayout);
+        tabLayout.setTabMode(TabLayout.MODE_SCROLLABLE);
+        tabLayout.setupWithViewPager(optionsViewPager);
     }
 
     private void setScreenSize() {
@@ -64,21 +79,20 @@ public class MainActivity extends AppCompatActivity{
 
     @SuppressLint("ResourceType")
     private void setUpFields(){
-        startServiceBtn = findViewById(R.id.setWallpaperBtn);
         canvas = findViewById(R.id.canvas);
-        chooseWidgetBtn = findViewById(R.id.chooseWidgetBtn);
 
         chooseWidgetDialog = new Dialog(this, android.R.style.Theme_Light_NoTitleBar_Fullscreen);
         availableWidgetList = new ArrayList<WidgetRow>();
+        optionsViewPager = findViewById(R.id.optionsViewPager);
     }
 
     @SuppressLint("ClickableViewAccessibility")
     private void setUpEventListeners(){
-
+        /*
         startServiceBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Widget.ALL_ONSCREEN_WIDGETS = canvas.getWidgets();
+                Widget.allOnscreenWidgets = canvas.getWidgets();
 
                 // start service
                 Intent serviceIntent = new Intent(getApplicationContext(), LiveWallpaperService.class);
@@ -92,7 +106,7 @@ public class MainActivity extends AppCompatActivity{
                 startActivity(intent);
             }
         });
-
+        */
 
         canvas.setOnTouchListener(new View.OnTouchListener() {
             @Override
@@ -107,11 +121,11 @@ public class MainActivity extends AppCompatActivity{
                         if(xyPrev[0] != -1 && xyPrev[1] != -1)
                             if(canvas.getSelectedWidget() != null) {
                                 moveWidgetRelative(canvas.getSelectedWidget(),
-                                        Math.getPercent(xy[0] - xyPrev[0], canvas.getMeasuredWidth()),
-                                        Math.getPercent(xy[1] - xyPrev[1], canvas.getMeasuredHeight()));
+                                        ServiceClass.getPercent(xy[0] - xyPrev[0], canvas.getMeasuredWidth()),
+                                        ServiceClass.getPercent(xy[1] - xyPrev[1], canvas.getMeasuredHeight()));
                                 Log.d("XY", ""
-                                        + Math.getValue(canvas.getWidgets().get(0).getX(), canvas.getMeasuredWidth())
-                                        + " " + Math.getValue(canvas.getWidgets().get(0).getY(), canvas.getMeasuredHeight()));
+                                        + ServiceClass.getValue(canvas.getWidgets().get(0).getX(), canvas.getMeasuredWidth())
+                                        + " " + ServiceClass.getValue(canvas.getWidgets().get(0).getY(), canvas.getMeasuredHeight()));
                             }
                     }
                 }
@@ -121,7 +135,7 @@ public class MainActivity extends AppCompatActivity{
                 return true;
             }
         });
-
+        /*
         chooseWidgetBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -135,11 +149,12 @@ public class MainActivity extends AppCompatActivity{
                 setUpWidgetDialogEventListeners();
             }
         });
+        */
     }
 
     private void setUpWidgetList(){
-        availableWidgetList.add(new WidgetRow(WidgetType.CLOCK,"Time"));
         availableWidgetList.add(new WidgetRow(WidgetType.TEXT,"Text"));
+        availableWidgetList.add(new WidgetRow(WidgetType.CLOCK,"Clock"));
     }
 
     private void setUpWidgetDialogEventListeners(){
@@ -158,6 +173,10 @@ public class MainActivity extends AppCompatActivity{
                 Widget widget = null;
 
                 switch (((WidgetRow)parent.getItemAtPosition(position)).getItemType()){
+                    case TEXT:{
+                        widget = new TextWidget(context);
+                        break;
+                    }
                     case CLOCK:{
                         widget = new ClockWidget(context);
                         break;

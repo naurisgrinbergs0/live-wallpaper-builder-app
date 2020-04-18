@@ -1,4 +1,4 @@
-package com.wallpaper.livewallpaper.Widget;
+package com.wallpaper.livewallpaper.Widgets;
 
 public class WidgetTransformation {
 

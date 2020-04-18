@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Date;
 
-public class Math {
+public class ServiceClass {
     /**
      * Gets current time formatted
      * @return

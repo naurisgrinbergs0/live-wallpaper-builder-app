@@ -1,6 +1,6 @@
-package com.wallpaper.livewallpaper;
+package com.wallpaper.livewallpaper.ListAdapters;
 
-import com.wallpaper.livewallpaper.Widget.Widget.*;
+import com.wallpaper.livewallpaper.Widgets.Widget.*;
 
 public class WidgetRow {
     private String text;

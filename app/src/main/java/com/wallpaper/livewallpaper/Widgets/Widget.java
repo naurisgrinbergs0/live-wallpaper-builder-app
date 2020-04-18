@@ -1,15 +1,15 @@
-package com.wallpaper.livewallpaper.Widget;
+package com.wallpaper.livewallpaper.Widgets;
 
 import android.content.Context;
 import android.graphics.Canvas;
 
 import java.util.ArrayList;
 
-import static com.wallpaper.livewallpaper.Widget.WidgetTransformation.*;
+import static com.wallpaper.livewallpaper.Widgets.WidgetTransformation.*;
 
 public abstract class Widget {
 
-    public static ArrayList<Widget> ALL_ONSCREEN_WIDGETS;
+    public static ArrayList<Widget> allOnscreenWidgets;
 
     public enum WidgetType{
         CLOCK,
@@ -21,15 +21,15 @@ public abstract class Widget {
     protected float y;
     protected Context context;
 
-    Widget(WidgetType type, Context context){
+    public Widget(WidgetType type, Context context){
         this.type = type;
         this.context = context;
     }
 
-    void setX(float x){
+    public void setX(float x){
         this.x = x;
     }
-    void setY(float y){
+    public void setY(float y){
         this.y = y;
     }
 
@@ -40,7 +40,10 @@ public abstract class Widget {
         return y;
     }
 
+
+    // returns ratio of widget width to parent width
     public abstract float getWidth(float canvasWidth);
+    // returns ratio of widget height to parent height
     public abstract float getHeight(float canvasHeight);
 
     public void init(float canvasWidth, float canvasHeight){
