@@ -39,7 +39,7 @@ public class WidgetListAdapter extends BaseAdapter {
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         if(convertView == null){
-            convertView = thisInflater.inflate(R.layout.widget_list_view_row, parent, false);
+            convertView = thisInflater.inflate(R.layout.row_widgets, parent, false);
             TextView rowText = (TextView)convertView.findViewById(R.id.rowText);
 
             WidgetRow currentRow = (WidgetRow)getItem(position);

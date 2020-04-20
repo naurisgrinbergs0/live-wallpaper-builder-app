@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/dracula"
     android:gravity="center_horizontal"
     android:orientation="vertical"
     tools:context=".Activities.MainActivity"
@@ -13,14 +14,14 @@
         android:id="@+id/canvasContainer"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_marginTop="16dp"
+        android:layout_margin="10dp"
         android:layout_weight="1">
 
         <com.wallpaper.livewallpaper.Views.BuilderCanvas
             android:id="@+id/canvas"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:background="@drawable/canvas_background"
+            android:background="@drawable/background_builder_canvas"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -43,6 +44,7 @@
                 android:id="@+id/optionsTabLayout"
                 android:layout_width="match_parent"
                 android:layout_height="30dp"
+                app:tabTextColor="@color/light"
                 android:layout_gravity="top" />
 
         </androidx.viewpager.widget.ViewPager>

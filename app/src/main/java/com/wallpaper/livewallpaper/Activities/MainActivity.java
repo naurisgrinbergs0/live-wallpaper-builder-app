@@ -139,7 +139,7 @@ public class MainActivity extends AppCompatActivity{
         chooseWidgetBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                chooseWidgetDialog.setContentView(R.layout.widget_layout);
+                chooseWidgetDialog.setContentView(R.layout.dialog_widgets);
                 chooseWidgetDialog.show();
 
                 ListView widgetListView = chooseWidgetDialog.findViewById(R.id.widgetListView);

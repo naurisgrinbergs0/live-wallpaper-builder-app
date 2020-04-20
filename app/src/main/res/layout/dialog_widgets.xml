@@ -19,7 +19,6 @@
             android:layout_width="30dp"
             android:layout_height="30dp"
             android:layout_marginTop="12dp"
-            android:background="@drawable/x"
             app:layout_constraintEnd_toEndOf="@+id/widgetListView"
             app:layout_constraintTop_toTopOf="parent" />
 

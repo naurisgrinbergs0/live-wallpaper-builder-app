@@ -9,6 +9,8 @@ import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentPagerAdapter;
 import androidx.viewpager.widget.PagerAdapter;
 
+import com.wallpaper.livewallpaper.Fragments.WidgetsFragment;
+
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -31,7 +33,14 @@ public class TabsPagerAdapter extends FragmentPagerAdapter {
 
     @Override
     public Fragment getItem(int position) {
-        return new Fragment();
+        switch (position){
+            case 0:{
+                return new WidgetsFragment();
+            }
+            default:{
+                return new Fragment();
+            }
+        }
     }
 
     @Nullable
