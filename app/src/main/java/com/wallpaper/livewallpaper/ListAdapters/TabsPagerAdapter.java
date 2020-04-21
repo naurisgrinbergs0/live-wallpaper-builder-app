@@ -1,17 +1,12 @@
 package com.wallpaper.livewallpaper.ListAdapters;
 
-import android.view.View;
-
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentPagerAdapter;
-import androidx.viewpager.widget.PagerAdapter;
 
 import com.wallpaper.livewallpaper.Fragments.WidgetsFragment;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Collections;
 

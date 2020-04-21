@@ -12,6 +12,7 @@ public abstract class Widget {
     public static ArrayList<Widget> allOnscreenWidgets;
 
     public enum WidgetType{
+        NONE,
         CLOCK,
         TEXT
     }

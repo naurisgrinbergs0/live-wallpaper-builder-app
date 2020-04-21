@@ -8,6 +8,7 @@ import android.widget.BaseAdapter;
 import android.widget.TextView;
 
 import com.wallpaper.livewallpaper.R;
+import com.wallpaper.livewallpaper.Widgets.Widget;
 
 import java.util.ArrayList;
 
@@ -47,5 +48,27 @@ public class WidgetListAdapter extends BaseAdapter {
         }
 
         return convertView;
+    }
+
+
+    public class WidgetRow {
+        private String text;
+        private Widget.WidgetType itemType;
+
+        public WidgetRow(Widget.WidgetType itemType, String text){
+            this.text = text;
+            this.itemType = itemType;
+        }
+
+        public Widget.WidgetType getItemType(){
+            return this.itemType;
+        }
+
+        public String getText(){
+            return this.text;
+        }
+        public void setText(String text){
+            this.text = text;
+        }
     }
 }

@@ -2,10 +2,7 @@ package com.wallpaper.livewallpaper.Activities;
 
 import android.annotation.SuppressLint;
 import android.app.Dialog;
-import android.app.WallpaperManager;
-import android.content.ComponentName;
 import android.content.Context;
-import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
@@ -13,23 +10,19 @@ import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.Button;
 import android.widget.ListView;
-import android.widget.TextView;
 
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.viewpager.widget.PagerAdapter;
 import androidx.viewpager.widget.ViewPager;
 
 import com.google.android.material.tabs.TabLayout;
 import com.wallpaper.livewallpaper.ListAdapters.TabsPagerAdapter;
+import com.wallpaper.livewallpaper.ListAdapters.WidgetListAdapter;
+import com.wallpaper.livewallpaper.ListAdapters.WidgetListAdapter.WidgetRow;
 import com.wallpaper.livewallpaper.Views.BuilderCanvas;
-import com.wallpaper.livewallpaper.Services.LiveWallpaperService;
 import com.wallpaper.livewallpaper.R;
 import com.wallpaper.livewallpaper.ServiceClass;
-import com.wallpaper.livewallpaper.ListAdapters.WidgetListAdapter;
-import com.wallpaper.livewallpaper.ListAdapters.WidgetRow;
 import com.wallpaper.livewallpaper.Widgets.*;
 import com.wallpaper.livewallpaper.Widgets.Widget.*;
 
@@ -56,7 +49,7 @@ public class MainActivity extends AppCompatActivity{
 
         setScreenSize();
         setUpFields();
-        setUpWidgetList();
+        //setUpWidgetList();
         setUpEventListeners();
         setUpPager();
     }
@@ -152,9 +145,9 @@ public class MainActivity extends AppCompatActivity{
         */
     }
 
-    private void setUpWidgetList(){
-        availableWidgetList.add(new WidgetRow(WidgetType.TEXT,"Text"));
-        availableWidgetList.add(new WidgetRow(WidgetType.CLOCK,"Clock"));
+    private void setUpWidgetList(WidgetListAdapter adapter){
+        availableWidgetList.add(adapter.new WidgetRow(WidgetType.TEXT,"Text"));
+        availableWidgetList.add(adapter.new WidgetRow(WidgetType.CLOCK,"Clock"));
     }
 
     private void setUpWidgetDialogEventListeners(){

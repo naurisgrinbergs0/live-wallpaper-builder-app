@@ -4,17 +4,24 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
+    android:gravity="center_horizontal|center_vertical"
     android:orientation="vertical">
-
-    <TextView
-        android:id="@+id/cw_name"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="TextView" />
 
     <ImageView
         android:id="@+id/cw_icon"
-        android:layout_width="100dp"
-        android:layout_height="100dp"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_margin="10dp"
         tools:srcCompat="@tools:sample/avatars[3]" />
+
+    <TextView
+        android:id="@+id/cw_name"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:ellipsize="end"
+        android:singleLine="true"
+        android:text="Name"
+        android:textAlignment="center"
+        android:textColor="@color/light"
+        android:textSize="12sp" />
 </LinearLayout>
