@@ -13,23 +13,37 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.wallpaper.livewallpaper.R;
 import com.wallpaper.livewallpaper.Widgets.Widget;
 
-import java.lang.reflect.Type;
 import java.util.ArrayList;
 
 public class WidgetsRecyclerViewAdapter extends RecyclerView.Adapter<WidgetsRecyclerViewAdapter.WidgetViewHolder> {
 
-    public ArrayList<WidgetDataHolder> data = new ArrayList<>();
+    private ArrayList<WidgetDataHolder> data = new ArrayList<>();
     private Context context;
+    private OnItemClickListener onItemClickListener;
 
-    public WidgetsRecyclerViewAdapter(Context context){
+
+    public void addData(WidgetDataHolder data){
+        this.data.add(data);
+        notifyDataSetChanged();
+    }
+    public void removeData(int index){
+        this.data.remove(index);
+        notifyDataSetChanged();
+    }
+
+
+
+
+    public WidgetsRecyclerViewAdapter(Context context, OnItemClickListener onItemClickListener){
         this.context = context;
+        this.onItemClickListener = onItemClickListener;
     }
 
     @NonNull
     @Override
     public WidgetViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.cell_widgets, parent, false);
-        return new WidgetViewHolder(view);
+        return new WidgetViewHolder(view, onItemClickListener);
     }
 
     @Override
@@ -43,15 +57,23 @@ public class WidgetsRecyclerViewAdapter extends RecyclerView.Adapter<WidgetsRecy
         return data.size();
     }
 
-    public class WidgetViewHolder extends RecyclerView.ViewHolder{
+    public class WidgetViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
 
         private TextView name;
         private ImageView icon;
+        private OnItemClickListener onItemClickListener;
 
-        public WidgetViewHolder(@NonNull View itemView) {
+        public WidgetViewHolder(@NonNull View itemView, OnItemClickListener onItemClickListener) {
             super(itemView);
             name = itemView.findViewById(R.id.cw_name);
             icon = itemView.findViewById(R.id.cw_icon);
+            this.onItemClickListener = onItemClickListener;
+            itemView.setOnClickListener(this);
+        }
+
+        @Override
+        public void onClick(View v) {
+            onItemClickListener.onItemClick(getAdapterPosition());
         }
     }
 
@@ -63,9 +85,13 @@ public class WidgetsRecyclerViewAdapter extends RecyclerView.Adapter<WidgetsRecy
             this.icon = icon;
         }
 
-        public WidgetDataHolder(String name, int icon){
-            this.name = name;
-            this.icon = icon;
+        public WidgetDataHolder(Widget widget){
+            this.name = widget.getName();
+            this.icon = widget.getIcon();
         }
+    }
+
+    public interface OnItemClickListener{
+        void onItemClick(int position);
     }
 }

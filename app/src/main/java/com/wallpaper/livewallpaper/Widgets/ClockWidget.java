@@ -1,21 +1,29 @@
 package com.wallpaper.livewallpaper.Widgets;
 
 import android.content.Context;
-import android.graphics.Canvas;
-import android.graphics.Color;
 import android.graphics.Rect;
 import android.os.Build;
-import android.text.TextPaint;
 
 import androidx.annotation.RequiresApi;
 
+import com.wallpaper.livewallpaper.R;
 import com.wallpaper.livewallpaper.ServiceClass;
 
 public class ClockWidget extends TextWidget {
 
+    private static int lastWidgetId = -1;
+
+    @RequiresApi(api = Build.VERSION_CODES.O)
     public ClockWidget(Context context){
-        super(WidgetType.CLOCK, context);
+        super(WidgetType.CLOCK, context.getString(R.string.pre_widget_clock) + (lastWidgetId + 1), context);
+        lastWidgetId++;
+        icon = R.drawable.hour;
+        text = getText();
     }
+    public ClockWidget(Widget.WidgetType type, String name, Context context){
+        super(type, name, context);
+    }
+
 
     @RequiresApi(api = Build.VERSION_CODES.O)
     public String getText(){

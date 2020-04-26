@@ -14,8 +14,10 @@ public class TabsPagerAdapter extends FragmentPagerAdapter {
 
     private ArrayList<String> tabs;
 
+    private WidgetsFragment.OnActionListener widgetsFragmentOnActionListener;
+
     public TabsPagerAdapter(FragmentManager fragmentManager){
-        super(fragmentManager);
+        super(fragmentManager, FragmentPagerAdapter.BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT);
     }
 
     @Override
@@ -30,7 +32,9 @@ public class TabsPagerAdapter extends FragmentPagerAdapter {
     public Fragment getItem(int position) {
         switch (position){
             case 0:{
-                return new WidgetsFragment();
+                WidgetsFragment fragment = new WidgetsFragment();
+                fragment.setOnActionListener(widgetsFragmentOnActionListener);
+                return fragment;
             }
             default:{
                 return new Fragment();
@@ -49,5 +53,9 @@ public class TabsPagerAdapter extends FragmentPagerAdapter {
     public void setTabs(String[] tabs){
         this.tabs = new ArrayList<>();
         Collections.addAll(this.tabs, tabs);
+    }
+
+    public void setWidgetsFragmentOnActionListener(WidgetsFragment.OnActionListener widgetsFragmentOnActionListener){
+        this.widgetsFragmentOnActionListener = widgetsFragmentOnActionListener;
     }
 }

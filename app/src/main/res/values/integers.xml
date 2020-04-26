@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Default values -->
+    <integer name="def_widget_text_font_size">20</integer>
+    <integer name="def_widget_text_color">-1</integer>
+</resources>

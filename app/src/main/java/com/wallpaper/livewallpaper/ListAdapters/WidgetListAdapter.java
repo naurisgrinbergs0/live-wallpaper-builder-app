@@ -8,16 +8,15 @@ import android.widget.BaseAdapter;
 import android.widget.TextView;
 
 import com.wallpaper.livewallpaper.R;
-import com.wallpaper.livewallpaper.Widgets.Widget;
 
 import java.util.ArrayList;
 
 public class WidgetListAdapter extends BaseAdapter {
 
-    private ArrayList<WidgetRow> singleRow;
+    private ArrayList<WidgetListRow> singleRow;
     private LayoutInflater thisInflater;
 
-    public WidgetListAdapter(Context context, ArrayList<WidgetRow> aRow) {
+    public WidgetListAdapter(Context context, ArrayList<WidgetListRow> aRow) {
         this.singleRow = aRow;
         thisInflater = ( LayoutInflater.from(context) );
     }
@@ -43,32 +42,10 @@ public class WidgetListAdapter extends BaseAdapter {
             convertView = thisInflater.inflate(R.layout.row_widgets, parent, false);
             TextView rowText = (TextView)convertView.findViewById(R.id.rowText);
 
-            WidgetRow currentRow = (WidgetRow)getItem(position);
+            WidgetListRow currentRow = (WidgetListRow)getItem(position);
             rowText.setText(currentRow.getText());
         }
 
         return convertView;
-    }
-
-
-    public class WidgetRow {
-        private String text;
-        private Widget.WidgetType itemType;
-
-        public WidgetRow(Widget.WidgetType itemType, String text){
-            this.text = text;
-            this.itemType = itemType;
-        }
-
-        public Widget.WidgetType getItemType(){
-            return this.itemType;
-        }
-
-        public String getText(){
-            return this.text;
-        }
-        public void setText(String text){
-            this.text = text;
-        }
     }
 }

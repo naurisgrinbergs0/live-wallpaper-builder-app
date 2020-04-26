@@ -1,81 +1,56 @@
 package com.wallpaper.livewallpaper.Activities;
 
 import android.annotation.SuppressLint;
-import android.app.Dialog;
-import android.content.Context;
-import android.os.Build;
 import android.os.Bundle;
-import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
-import android.widget.AdapterView;
-import android.widget.ListView;
 
-import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.viewpager.widget.ViewPager;
 
 import com.google.android.material.tabs.TabLayout;
+import com.wallpaper.livewallpaper.Fragments.WidgetsFragment;
 import com.wallpaper.livewallpaper.ListAdapters.TabsPagerAdapter;
-import com.wallpaper.livewallpaper.ListAdapters.WidgetListAdapter;
-import com.wallpaper.livewallpaper.ListAdapters.WidgetListAdapter.WidgetRow;
-import com.wallpaper.livewallpaper.Views.BuilderCanvas;
 import com.wallpaper.livewallpaper.R;
 import com.wallpaper.livewallpaper.ServiceClass;
-import com.wallpaper.livewallpaper.Widgets.*;
-import com.wallpaper.livewallpaper.Widgets.Widget.*;
+import com.wallpaper.livewallpaper.Views.BuilderCanvas;
+import com.wallpaper.livewallpaper.Widgets.Widget;
 
-import java.util.ArrayList;
+import static com.wallpaper.livewallpaper.Widgets.WidgetTransformation.moveWidgetRelative;
 
-import static com.wallpaper.livewallpaper.Widgets.WidgetTransformation.*;
-
-public class MainActivity extends AppCompatActivity{
+public class MainActivity extends AppCompatActivity implements WidgetsFragment.OnActionListener {
 
     private BuilderCanvas canvas;
-    private Dialog chooseWidgetDialog;
-    private ArrayList<WidgetRow> availableWidgetList;
     private ViewPager optionsViewPager;
 
     private float[] xyPrev = {-1,-1};
-
-    public static float REAL_WIDTH;
-    public static float REAL_HEIGHT;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        setScreenSize();
         setUpFields();
-        //setUpWidgetList();
         setUpEventListeners();
         setUpPager();
+        ServiceClass.setScreenSize(this);
     }
 
     private void setUpPager() {
         TabsPagerAdapter pagerAdapter = new TabsPagerAdapter(getSupportFragmentManager());
         pagerAdapter.setTabs(new String[]{"Widgets", "Background", "Colors", "A", "B", "Infinite"});
+        pagerAdapter.setWidgetsFragmentOnActionListener(this);
         optionsViewPager.setAdapter(pagerAdapter);
         TabLayout tabLayout = findViewById(R.id.optionsTabLayout);
         tabLayout.setTabMode(TabLayout.MODE_SCROLLABLE);
         tabLayout.setupWithViewPager(optionsViewPager);
     }
 
-    private void setScreenSize() {
-        DisplayMetrics displayMetrics = new DisplayMetrics();
-        getWindowManager().getDefaultDisplay().getRealMetrics(displayMetrics);
-        REAL_HEIGHT = displayMetrics.heightPixels;
-        REAL_WIDTH = displayMetrics.widthPixels;
-    }
 
     @SuppressLint("ResourceType")
     private void setUpFields(){
         canvas = findViewById(R.id.canvas);
-
-        chooseWidgetDialog = new Dialog(this, android.R.style.Theme_Light_NoTitleBar_Fullscreen);
-        availableWidgetList = new ArrayList<WidgetRow>();
         optionsViewPager = findViewById(R.id.optionsViewPager);
     }
 
@@ -128,59 +103,11 @@ public class MainActivity extends AppCompatActivity{
                 return true;
             }
         });
-        /*
-        chooseWidgetBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                chooseWidgetDialog.setContentView(R.layout.dialog_widgets);
-                chooseWidgetDialog.show();
-
-                ListView widgetListView = chooseWidgetDialog.findViewById(R.id.widgetListView);
-                WidgetListAdapter widgetListAdapter = new WidgetListAdapter(getApplicationContext(), availableWidgetList);
-                widgetListView.setAdapter(widgetListAdapter);
-
-                setUpWidgetDialogEventListeners();
-            }
-        });
-        */
     }
 
-    private void setUpWidgetList(WidgetListAdapter adapter){
-        availableWidgetList.add(adapter.new WidgetRow(WidgetType.TEXT,"Text"));
-        availableWidgetList.add(adapter.new WidgetRow(WidgetType.CLOCK,"Clock"));
-    }
-
-    private void setUpWidgetDialogEventListeners(){
-        chooseWidgetDialog.findViewById(R.id.exitDialogBtn).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                chooseWidgetDialog.dismiss();
-            }
-        });
-
-        ((ListView)chooseWidgetDialog.findViewById(R.id.widgetListView)).setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @RequiresApi(api = Build.VERSION_CODES.O)
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Context context = getApplicationContext();
-                Widget widget = null;
-
-                switch (((WidgetRow)parent.getItemAtPosition(position)).getItemType()){
-                    case TEXT:{
-                        widget = new TextWidget(context);
-                        break;
-                    }
-                    case CLOCK:{
-                        widget = new ClockWidget(context);
-                        break;
-                    }
-                }
-
-                canvas.addWidget(widget);
-                canvas.setSelectedWidget(widget);
-
-                chooseWidgetDialog.dismiss();
-            }
-        });
+    @Override
+    public void onWidgetSelectAction(Widget widget) {
+        canvas.addWidget(widget);
+        canvas.setSelectedWidget(widget);
     }
 }

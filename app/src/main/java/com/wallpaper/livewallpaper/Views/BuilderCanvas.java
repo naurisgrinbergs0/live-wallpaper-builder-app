@@ -10,7 +10,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.constraintlayout.widget.ConstraintLayout;
 
-import com.wallpaper.livewallpaper.Activities.MainActivity;
+import com.wallpaper.livewallpaper.ServiceClass;
 import com.wallpaper.livewallpaper.Widgets.Widget;
 
 import java.util.ArrayList;
@@ -45,7 +45,7 @@ public class BuilderCanvas extends View {
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         float height = MeasureSpec.getSize(heightMeasureSpec);
-        float width = (MainActivity.REAL_WIDTH * height) / MainActivity.REAL_HEIGHT;
+        float width = (ServiceClass.REAL_WIDTH * height) / ServiceClass.REAL_HEIGHT;
 
         setMeasuredDimension((int)width, (int)height);
     }

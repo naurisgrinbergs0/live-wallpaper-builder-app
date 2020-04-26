@@ -1,10 +1,8 @@
 package com.wallpaper.livewallpaper;
 
-import android.graphics.Paint;
-import android.graphics.Rect;
+import android.app.Activity;
 import android.os.Build;
-import android.text.TextPaint;
-import android.widget.TextView;
+import android.util.DisplayMetrics;
 
 import androidx.annotation.RequiresApi;
 
@@ -85,5 +83,16 @@ public class ServiceClass {
      */
     public static float getValue(float percent, float maxValue){
         return percent * maxValue;
+    }
+
+
+    public static float REAL_WIDTH;
+    public static float REAL_HEIGHT;
+
+    public static void setScreenSize(Activity activity) {
+        DisplayMetrics displayMetrics = new DisplayMetrics();
+        activity.getWindowManager().getDefaultDisplay().getRealMetrics(displayMetrics);
+        REAL_HEIGHT = displayMetrics.heightPixels;
+        REAL_WIDTH = displayMetrics.widthPixels;
     }
 }

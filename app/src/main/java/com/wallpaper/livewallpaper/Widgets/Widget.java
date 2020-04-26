@@ -17,14 +17,19 @@ public abstract class Widget {
         TEXT
     }
 
+
     protected WidgetType type;
     protected float x;
     protected float y;
     protected Context context;
+    protected String name;
+    protected int icon;
 
-    public Widget(WidgetType type, Context context){
+    public Widget(WidgetType type, String name, Context context){
         this.type = type;
+        this.name = name;
         this.context = context;
+        this.icon = 0;
     }
 
     public void setX(float x){
@@ -33,12 +38,21 @@ public abstract class Widget {
     public void setY(float y){
         this.y = y;
     }
+    public void setIcon(int icon){
+        this.icon = icon;
+    }
 
     public float getX(){
         return x;
     }
     public float getY(){
         return y;
+    }
+    public String getName(){
+        return name;
+    }
+    public int getIcon(){
+        return icon;
     }
 
 

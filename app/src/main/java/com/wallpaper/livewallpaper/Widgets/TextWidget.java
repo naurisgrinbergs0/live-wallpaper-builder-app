@@ -2,30 +2,34 @@ package com.wallpaper.livewallpaper.Widgets;
 
 import android.content.Context;
 import android.graphics.Canvas;
-import android.graphics.Color;
 import android.graphics.Rect;
-import android.os.Build;
 import android.text.TextPaint;
-
-import androidx.annotation.RequiresApi;
 
 import com.wallpaper.livewallpaper.R;
 import com.wallpaper.livewallpaper.ServiceClass;
 
 public class TextWidget extends Widget {
 
-    protected String text;
+    private static int lastWidgetId = -1;
+
     protected TextPaint paint;
+    protected String text;
     protected float fontSize;
     protected int color;
 
 
     public TextWidget(Context context){
-        super(WidgetType.TEXT, context);
+        super(WidgetType.TEXT, context.getString(R.string.pre_widget_text) + (lastWidgetId + 1), context);
+        lastWidgetId++;
+        text = name;
+        fontSize = context.getResources().getInteger(R.integer.def_widget_text_font_size);
+        color = context.getResources().getInteger(R.integer.def_widget_text_color);
+        icon = 999;
     }
-
-    public TextWidget(WidgetType type, Context context){
-        super(type, context);
+    public TextWidget(WidgetType type, String name, Context context){
+        super(type, name, context);
+        fontSize = context.getResources().getInteger(R.integer.def_widget_text_font_size);
+        color = context.getResources().getInteger(R.integer.def_widget_text_color);
     }
 
     public String getText(){

@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">LiveWallpaper</string>
+
+    <!-- Name prefixes -->
+    <string name="pre_widget_text">text</string>
+    <string name="pre_widget_clock">clock</string>
 </resources>
