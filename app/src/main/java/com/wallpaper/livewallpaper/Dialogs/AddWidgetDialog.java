@@ -78,7 +78,7 @@ public class AddWidgetDialog extends Dialog {
                 }
 
                 if(onWidgetSelectListener != null)
-                    onWidgetSelectListener.onSelect(widget);
+                    onWidgetSelectListener.onWidgetAdd(widget);
 
                 dismiss();
             }
@@ -98,6 +98,6 @@ public class AddWidgetDialog extends Dialog {
     }
 
     public interface OnWidgetSelectListener{
-        void onSelect(Widget widget);
+        void onWidgetAdd(Widget widget);
     }
 }

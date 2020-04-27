@@ -17,7 +17,7 @@ public class ClockWidget extends TextWidget {
     public ClockWidget(Context context){
         super(WidgetType.CLOCK, context.getString(R.string.pre_widget_clock) + (lastWidgetId + 1), context);
         lastWidgetId++;
-        icon = R.drawable.hour;
+        icon = R.drawable.clock;
         text = getText();
     }
     public ClockWidget(Widget.WidgetType type, String name, Context context){
@@ -32,18 +32,18 @@ public class ClockWidget extends TextWidget {
     }
 
     @Override
-    public float getWidth(float parentWidth) {
+    public float getWidth() {
         Rect bounds = new Rect();
         paint.getTextBounds("00:00:00", 0, "00:00:00".length(), bounds);
         float width = bounds.width();
-        return width / parentWidth;
+        return width / (canvasBox.right - canvasBox.left);
     }
 
     @Override
-    public float getHeight(float parentHeight) {
+    public float getHeight() {
         Rect bounds = new Rect();
         paint.getTextBounds("00:00:00", 0, "00:00:00".length(), bounds);
         float height = bounds.height();
-        return height / parentHeight;
+        return height / (canvasBox.bottom - canvasBox.top);
     }
 }

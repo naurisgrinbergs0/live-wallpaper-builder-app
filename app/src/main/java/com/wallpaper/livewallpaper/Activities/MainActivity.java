@@ -106,8 +106,13 @@ public class MainActivity extends AppCompatActivity implements WidgetsFragment.O
     }
 
     @Override
-    public void onWidgetSelectAction(Widget widget) {
+    public void onWidgetAddAction(Widget widget) {
         canvas.addWidget(widget);
-        canvas.setSelectedWidget(widget);
+        canvas.setSelectedWidget(widget.getName());
+    }
+
+    @Override
+    public void onWidgetSelectAction(String widgetName) {
+        canvas.setSelectedWidget(widgetName);
     }
 }

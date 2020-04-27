@@ -12,16 +12,16 @@ public class WidgetTransformation {
         widget.setY(y);
     }
 
-    public static void centerWidgetHorizontal(Widget widget, float parentWidth){
-        widget.setX(.5f - (widget.getWidth(parentWidth) / 2));
+    public static void centerWidgetHorizontal(Widget widget){
+        widget.setX(.5f - (widget.getWidth() / 2));
     }
 
-    public static void centerWidgetVertical(Widget widget, float parentHeight){
-        widget.setY(.5f - (widget.getHeight(parentHeight) / 2));
+    public static void centerWidgetVertical(Widget widget){
+        widget.setY(.5f - (widget.getHeight() / 2));
     }
 
     public static void centerWidget(Widget widget, float parentWidth, float parentHeight){
-        centerWidgetHorizontal(widget, parentWidth);
-        centerWidgetVertical(widget, parentHeight);
+        centerWidgetHorizontal(widget);
+        centerWidgetVertical(widget);
     }
 }

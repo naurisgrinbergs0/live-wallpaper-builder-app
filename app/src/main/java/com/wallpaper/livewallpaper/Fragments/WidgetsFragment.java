@@ -55,16 +55,34 @@ public class WidgetsFragment extends Fragment implements WidgetsRecyclerViewAdap
 
     @Override
     public void onItemClick(int position) {
-        if(position == 0){
+        if(recyclerViewAdapter.getData(position).getName() == null){
             addWidgetDialog.show();
+        }
+        else {
+            WidgetsRecyclerViewAdapter.WidgetDataHolder item = recyclerViewAdapter.getData(position);
+            setNewSelectedWidget(item.getName());
+            onActionListener.onWidgetSelectAction(item.getName());
+        }
+    }
+
+    private void setNewSelectedWidget(String itemName) {
+        for(byte i = 0; i < recyclerViewAdapter.getItemCount(); i++) {
+            WidgetsRecyclerViewAdapter.WidgetViewHolder vh =
+                    (WidgetsRecyclerViewAdapter.WidgetViewHolder) recyclerView.findViewHolderForAdapterPosition(i);
+            int color = (itemName == recyclerViewAdapter.getData(i).getName())
+                    ? getContext().getResources().getColor(R.color.builder_canvas_selected_widget_box_stroke_color)
+                    : getContext().getResources().getColor(R.color.light);
+            vh.getIconImageView().setColorFilter(color);
+            vh.getNameTextView().setTextColor(color);
         }
     }
 
 
     @Override
-    public void onSelect(Widget widget) {
-        onActionListener.onWidgetSelectAction(widget);
+    public void onWidgetAdd(Widget widget) {
         recyclerViewAdapter.addData(recyclerViewAdapter.new WidgetDataHolder(widget));
+        onActionListener.onWidgetAddAction(widget);
+        setNewSelectedWidget(widget.getName());
     }
 
     public void setOnActionListener(OnActionListener onActionListener) {
@@ -72,6 +90,7 @@ public class WidgetsFragment extends Fragment implements WidgetsRecyclerViewAdap
     }
 
     public interface OnActionListener{
-        void onWidgetSelectAction(Widget widget);
+        void onWidgetAddAction(Widget widget);
+        void onWidgetSelectAction(String widgetName);
     }
 }

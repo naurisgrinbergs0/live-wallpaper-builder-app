@@ -26,6 +26,9 @@ public class WidgetsRecyclerViewAdapter extends RecyclerView.Adapter<WidgetsRecy
         this.data.add(data);
         notifyDataSetChanged();
     }
+    public WidgetDataHolder getData(int index){
+        return this.data.get(index);
+    }
     public void removeData(int index){
         this.data.remove(index);
         notifyDataSetChanged();
@@ -48,8 +51,8 @@ public class WidgetsRecyclerViewAdapter extends RecyclerView.Adapter<WidgetsRecy
 
     @Override
     public void onBindViewHolder(@NonNull WidgetViewHolder holder, int position) {
-        holder.name.setText(data.get(position).name);
-        holder.icon.setImageResource(data.get(position).icon);
+        holder.nameTextView.setText(data.get(position).name);
+        holder.iconImageView.setImageResource(data.get(position).icon);
     }
 
     @Override
@@ -59,16 +62,24 @@ public class WidgetsRecyclerViewAdapter extends RecyclerView.Adapter<WidgetsRecy
 
     public class WidgetViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
 
-        private TextView name;
-        private ImageView icon;
+        private TextView nameTextView;
+        private ImageView iconImageView;
         private OnItemClickListener onItemClickListener;
 
         public WidgetViewHolder(@NonNull View itemView, OnItemClickListener onItemClickListener) {
             super(itemView);
-            name = itemView.findViewById(R.id.cw_name);
-            icon = itemView.findViewById(R.id.cw_icon);
+            nameTextView = itemView.findViewById(R.id.cw_name);
+            iconImageView = itemView.findViewById(R.id.cw_icon);
             this.onItemClickListener = onItemClickListener;
             itemView.setOnClickListener(this);
+        }
+
+        public TextView getNameTextView() {
+            return nameTextView;
+        }
+
+        public ImageView getIconImageView() {
+            return iconImageView;
         }
 
         @Override
@@ -78,8 +89,12 @@ public class WidgetsRecyclerViewAdapter extends RecyclerView.Adapter<WidgetsRecy
     }
 
     public class WidgetDataHolder{
-        public String name;
-        public int icon;
+        private String name;
+        private int icon;
+
+        public String getName() {
+            return name;
+        }
 
         public WidgetDataHolder(int icon){
             this.icon = icon;

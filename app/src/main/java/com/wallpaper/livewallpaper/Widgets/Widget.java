@@ -2,10 +2,13 @@ package com.wallpaper.livewallpaper.Widgets;
 
 import android.content.Context;
 import android.graphics.Canvas;
+import android.graphics.Rect;
+
+import com.wallpaper.livewallpaper.R;
 
 import java.util.ArrayList;
 
-import static com.wallpaper.livewallpaper.Widgets.WidgetTransformation.*;
+import static com.wallpaper.livewallpaper.Widgets.WidgetTransformation.centerWidget;
 
 public abstract class Widget {
 
@@ -17,6 +20,7 @@ public abstract class Widget {
         TEXT
     }
 
+    protected Rect canvasBox;
 
     protected WidgetType type;
     protected float x;
@@ -29,7 +33,7 @@ public abstract class Widget {
         this.type = type;
         this.name = name;
         this.context = context;
-        this.icon = 0;
+        this.icon = context.getResources().getInteger(R.integer.def_widget_icon);
     }
 
     public void setX(float x){
@@ -38,8 +42,8 @@ public abstract class Widget {
     public void setY(float y){
         this.y = y;
     }
-    public void setIcon(int icon){
-        this.icon = icon;
+    public void setCanvasBox(Rect canvasBox){
+        this.canvasBox = canvasBox;
     }
 
     public float getX(){
@@ -54,15 +58,21 @@ public abstract class Widget {
     public int getIcon(){
         return icon;
     }
+    public Rect getCanvasBox(){
+        return canvasBox;
+    }
 
 
     // returns ratio of widget width to parent width
-    public abstract float getWidth(float canvasWidth);
+    public abstract float getWidth();
     // returns ratio of widget height to parent height
-    public abstract float getHeight(float canvasHeight);
+    public abstract float getHeight();
 
-    public void init(float canvasWidth, float canvasHeight){
-        centerWidget(this, canvasWidth, canvasHeight);
+    public void init(){
+        if(canvasBox != null)
+            centerWidget(this,
+                    canvasBox.right - canvasBox.left,
+                    canvasBox.bottom - canvasBox.top);
     }
 
     public abstract void draw(Canvas canvas);

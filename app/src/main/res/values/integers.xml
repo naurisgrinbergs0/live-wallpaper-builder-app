@@ -2,5 +2,11 @@
 <resources>
     <!-- Default values -->
     <integer name="def_widget_text_font_size">20</integer>
-    <integer name="def_widget_text_color">-1</integer>
+    <integer name="def_widget_icon">-1</integer>
+
+    <!-- Builder canvas constants -->
+    <integer name="builder_canvas_selected_widget_box_stroke_width">4</integer>
+    <integer name="builder_canvas_selected_widget_box_stroke_dash">20</integer>
+    <integer name="builder_canvas_selected_widget_box_stroke_gap">20</integer>
+    <integer name="builder_canvas_selected_widget_box_corner_size">20</integer>
 </resources>
