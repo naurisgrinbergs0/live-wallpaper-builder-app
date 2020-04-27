@@ -4,6 +4,7 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Rect;
 import android.text.TextPaint;
+import android.util.Log;
 
 import com.wallpaper.livewallpaper.R;
 import com.wallpaper.livewallpaper.ServiceClass;
@@ -30,6 +31,13 @@ public class TextWidget extends Widget {
         super(type, name, context);
         fontSize = context.getResources().getInteger(R.integer.def_widget_text_font_size);
         color = context.getResources().getColor(R.color.def_widget_text_color);
+    }
+
+    @Override
+    public void scale(float scaleFactor) {
+        fontSize = context.getResources().getInteger(R.integer.def_widget_text_font_size) * scaleFactor;
+        fontSize /= (float) (canvasBox.bottom - canvasBox.top);
+        Log.d("TW", "scale: " + scaleFactor);
     }
 
     public String getText(){
@@ -59,6 +67,7 @@ public class TextWidget extends Widget {
         paint.setColor(color);
         paint.setTextSize(fontSize * context.getResources().getDisplayMetrics().density);
         fontSize /= (float) (canvasBox.bottom - canvasBox.top);
+        Log.d("TW", "sssss: " + fontSize);
         super.init();
     }
 

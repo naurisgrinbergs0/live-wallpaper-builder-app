@@ -82,7 +82,7 @@ public class WidgetsFragment extends Fragment implements WidgetsRecyclerViewAdap
     public void onWidgetAdd(Widget widget) {
         recyclerViewAdapter.addData(recyclerViewAdapter.new WidgetDataHolder(widget));
         onActionListener.onWidgetAddAction(widget);
-        setNewSelectedWidget(widget.getName());
+        //setNewSelectedWidget(widget.getName());
     }
 
     public void setOnActionListener(OnActionListener onActionListener) {

@@ -63,6 +63,8 @@ public abstract class Widget {
     }
 
 
+    public abstract void scale(float scaleFactor);
+
     // returns ratio of widget width to parent width
     public abstract float getWidth();
     // returns ratio of widget height to parent height

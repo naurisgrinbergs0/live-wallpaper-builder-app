@@ -7,19 +7,24 @@ import android.graphics.Paint;
 import android.graphics.Rect;
 import android.os.Build;
 import android.util.AttributeSet;
+import android.view.MotionEvent;
 import android.view.View;
 
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.constraintlayout.widget.ConstraintLayout;
 
+import com.wallpaper.livewallpaper.GestureDetectors.MoveGestureDetector;
+import com.wallpaper.livewallpaper.GestureDetectors.ScaleGestureDetector;
 import com.wallpaper.livewallpaper.R;
 import com.wallpaper.livewallpaper.ServiceClass;
 import com.wallpaper.livewallpaper.Widgets.Widget;
 
 import java.util.ArrayList;
 
-public class BuilderCanvas extends View {
+import static com.wallpaper.livewallpaper.Widgets.WidgetTransformation.moveWidgetRelative;
+
+public class BuilderCanvas extends View implements MoveGestureDetector.OnMoveGestureListener, ScaleGestureDetector.OnScaleGestureListener {
     private ArrayList<Widget> widgets;
     private Widget selectedWidget;
     private Paint widgetBoxPaint;
@@ -27,6 +32,9 @@ public class BuilderCanvas extends View {
     private Rect widgetBox;
     private Rect widgetBoxCorner;
     private Rect canvasBox;
+
+    private MoveGestureDetector moveGestureDetector;
+    private ScaleGestureDetector scaleGestureDetector;
 
     @RequiresApi(api = Build.VERSION_CODES.O)
     public BuilderCanvas(Context context, @Nullable AttributeSet attrs) {
@@ -55,6 +63,8 @@ public class BuilderCanvas extends View {
         widgetBox = new Rect();
         widgetBoxCorner = new Rect();
         widgets = new ArrayList<Widget>();
+        scaleGestureDetector = new ScaleGestureDetector(getContext(), this);
+        moveGestureDetector = new MoveGestureDetector(this);
     }
 
     public void addWidget(Widget widget){
@@ -144,5 +154,27 @@ public class BuilderCanvas extends View {
         widgetBoxCorner.right = xCenter + halfCornerSize;
         widgetBoxCorner.bottom = yCenter + halfCornerSize;
         canvas.drawRect(widgetBoxCorner, widgetBoxCornerPaint);
+    }
+
+
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        scaleGestureDetector.onTouchEvent(event);
+        moveGestureDetector.onTouchEvent(event);
+        return true;
+    }
+
+    @Override
+    public void OnMove(int deltaX, int deltaY) {
+        if(selectedWidget != null) {
+            moveWidgetRelative(selectedWidget,
+                    ServiceClass.getPercent(deltaX, getCanvasWidth()),
+                    ServiceClass.getPercent(deltaY, getCanvasHeight()));
+        }
+    }
+
+    @Override
+    public void OnScale(float scaleFactor) {
+        selectedWidget.scale(scaleFactor);
     }
 }
