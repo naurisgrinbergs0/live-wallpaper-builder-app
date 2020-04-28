@@ -23,11 +23,14 @@ public abstract class Widget {
     protected Rect canvasBox;
 
     protected WidgetType type;
-    protected float x;
-    protected float y;
     protected Context context;
     protected String name;
     protected int icon;
+
+    protected float x;
+    protected float y;
+    protected float scale; // [0.5;10] scale factor
+    protected float rotation; // [0;360] rotation
 
     public Widget(WidgetType type, String name, Context context){
         this.type = type;
@@ -45,6 +48,13 @@ public abstract class Widget {
     public void setCanvasBox(Rect canvasBox){
         this.canvasBox = canvasBox;
     }
+    public void setScale(float scale){
+        this.scale = scale;
+    }
+    public void setRotation(float rotation){
+        this.rotation = rotation;
+    }
+
 
     public float getX(){
         return x;
@@ -61,20 +71,24 @@ public abstract class Widget {
     public Rect getCanvasBox(){
         return canvasBox;
     }
+    public float getScale(){
+        return scale;
+    }
+    public float getRotation(){
+        return rotation;
+    }
 
-
-    public abstract void scale(float scaleFactor);
-
-    // returns ratio of widget width to parent width
     public abstract float getWidth();
-    // returns ratio of widget height to parent height
     public abstract float getHeight();
 
     public void init(){
-        if(canvasBox != null)
+        if(canvasBox != null) {
             centerWidget(this,
                     canvasBox.right - canvasBox.left,
                     canvasBox.bottom - canvasBox.top);
+            scale = 1;
+            rotation = 0;
+        }
     }
 
     public abstract void draw(Canvas canvas);

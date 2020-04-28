@@ -7,7 +7,7 @@ public class ScaleGestureDetector {
 
     private float scaleFactor = 1.0f;
     private static float minScaleFactor = 0.3f;
-    private static float maxScaleFactor = 10.0f;
+    private static float maxScaleFactor = 20.0f;
 
     private OnScaleGestureListener onScaleGestureListener;
     private android.view.ScaleGestureDetector builtInScaleDetector;

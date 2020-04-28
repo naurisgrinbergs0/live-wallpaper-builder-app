@@ -2,6 +2,7 @@ package com.wallpaper.livewallpaper.Views;
 
 import android.content.Context;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.DashPathEffect;
 import android.graphics.Paint;
 import android.graphics.Rect;
@@ -15,6 +16,7 @@ import androidx.annotation.RequiresApi;
 import androidx.constraintlayout.widget.ConstraintLayout;
 
 import com.wallpaper.livewallpaper.GestureDetectors.MoveGestureDetector;
+import com.wallpaper.livewallpaper.GestureDetectors.RotateGestureDetector;
 import com.wallpaper.livewallpaper.GestureDetectors.ScaleGestureDetector;
 import com.wallpaper.livewallpaper.R;
 import com.wallpaper.livewallpaper.ServiceClass;
@@ -24,7 +26,9 @@ import java.util.ArrayList;
 
 import static com.wallpaper.livewallpaper.Widgets.WidgetTransformation.moveWidgetRelative;
 
-public class BuilderCanvas extends View implements MoveGestureDetector.OnMoveGestureListener, ScaleGestureDetector.OnScaleGestureListener {
+public class BuilderCanvas extends View
+        implements MoveGestureDetector.OnMoveGestureListener,
+        ScaleGestureDetector.OnScaleGestureListener, RotateGestureDetector.OnRotateGestureListener {
     private ArrayList<Widget> widgets;
     private Widget selectedWidget;
     private Paint widgetBoxPaint;
@@ -35,6 +39,7 @@ public class BuilderCanvas extends View implements MoveGestureDetector.OnMoveGes
 
     private MoveGestureDetector moveGestureDetector;
     private ScaleGestureDetector scaleGestureDetector;
+    private RotateGestureDetector rotateGestureDetector;
 
     @RequiresApi(api = Build.VERSION_CODES.O)
     public BuilderCanvas(Context context, @Nullable AttributeSet attrs) {
@@ -65,6 +70,7 @@ public class BuilderCanvas extends View implements MoveGestureDetector.OnMoveGes
         widgets = new ArrayList<Widget>();
         scaleGestureDetector = new ScaleGestureDetector(getContext(), this);
         moveGestureDetector = new MoveGestureDetector(this);
+        rotateGestureDetector = new RotateGestureDetector(this);
     }
 
     public void addWidget(Widget widget){
@@ -117,12 +123,32 @@ public class BuilderCanvas extends View implements MoveGestureDetector.OnMoveGes
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
+
+
         // draw all the widgets
-        for(Widget widget : widgets)
+        for(Widget widget : widgets) {
+            canvas.save();
+            canvas.translate(
+                    ServiceClass.getValue(widget.getX(), getCanvasWidth()),
+                    ServiceClass.getValue(widget.getY() + widget.getHeight(),getCanvasHeight()));
+            canvas.scale(widget.getScale(), widget.getScale()
+                    //,ServiceClass.getValue(widget.getX() + (widget.getWidth() * widget.getScale() / 2), getCanvasWidth()),
+                    //ServiceClass.getValue(widget.getY() + widget.getHeight() + (widget.getHeight() * widget.getScale() / 2),getCanvasHeight())
+            );
             widget.draw(canvas);
-        // draw box around selected widget
-        if(selectedWidget != null)
-            drawWidgetBox(selectedWidget, canvas);
+
+            Paint p = new Paint();
+            p.setColor(Color.RED);
+            p.setStyle(Paint.Style.STROKE);
+            p.setStrokeWidth(3);
+            canvas.drawRect(new Rect(0,0,getCanvasWidth(),getCanvasHeight()), p);
+
+            canvas.restore();
+
+            // draw box if needed
+            if(selectedWidget == widget)
+                drawWidgetBox(widget, canvas);
+        }
 
         ConstraintLayout.LayoutParams layoutParams = new ConstraintLayout.LayoutParams(getCanvasWidth(), getCanvasHeight());
         layoutParams.leftToLeft = ((View)getParent()).getId();
@@ -133,17 +159,24 @@ public class BuilderCanvas extends View implements MoveGestureDetector.OnMoveGes
     }
 
     private void drawWidgetBox(Widget widget, Canvas canvas){
+        canvas.save();
+        canvas.translate(
+                ServiceClass.getValue(widget.getX(), getCanvasWidth()),
+                ServiceClass.getValue(widget.getY() + widget.getHeight(),getCanvasHeight()));
+
         byte stroke = (byte) widgetBoxPaint.getStrokeWidth();
-        widgetBox.left = (int) (widget.getX() * getCanvasWidth()) - stroke;
-        widgetBox.top = (int)(widget.getY() * getCanvasHeight()) - stroke;
-        widgetBox.right = (int) (widgetBox.left + (widget.getWidth() * getCanvasWidth())) + (stroke * 2);
-        widgetBox.bottom = (int) (widgetBox.top + (widget.getHeight() * getCanvasHeight())) + (stroke * 2);
+        widgetBox.left = -stroke;
+        widgetBox.top = -stroke;
+        widgetBox.right = (int) (widget.getWidth() * getCanvasWidth() * widget.getScale()) + (stroke * 2);
+        widgetBox.bottom = (int) (widget.getHeight() * getCanvasHeight() * widget.getScale()) + (stroke * 2);
         canvas.drawRect(widgetBox, widgetBoxPaint);
 
         drawWidgetBoxCorner(canvas, widgetBox.left, widgetBox.top);
         drawWidgetBoxCorner(canvas, widgetBox.right, widgetBox.top);
         drawWidgetBoxCorner(canvas, widgetBox.right, widgetBox.bottom);
         drawWidgetBoxCorner(canvas, widgetBox.left, widgetBox.bottom);
+
+        canvas.restore();
     }
 
     private void drawWidgetBoxCorner(Canvas canvas, int xCenter, int yCenter){
@@ -161,6 +194,7 @@ public class BuilderCanvas extends View implements MoveGestureDetector.OnMoveGes
     public boolean onTouchEvent(MotionEvent event) {
         scaleGestureDetector.onTouchEvent(event);
         moveGestureDetector.onTouchEvent(event);
+        //rotateGestureDetector.onTouchEvent(event);
         return true;
     }
 
@@ -175,6 +209,11 @@ public class BuilderCanvas extends View implements MoveGestureDetector.OnMoveGes
 
     @Override
     public void OnScale(float scaleFactor) {
-        selectedWidget.scale(scaleFactor);
+        selectedWidget.setScale(scaleFactor);
+    }
+
+    @Override
+    public void OnRotate(float degrees) {
+        selectedWidget.setRotation(degrees);
     }
 }

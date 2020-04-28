@@ -2,12 +2,11 @@ package com.wallpaper.livewallpaper.Widgets;
 
 import android.content.Context;
 import android.graphics.Canvas;
+import android.graphics.Paint;
 import android.graphics.Rect;
 import android.text.TextPaint;
-import android.util.Log;
 
 import com.wallpaper.livewallpaper.R;
-import com.wallpaper.livewallpaper.ServiceClass;
 
 public class TextWidget extends Widget {
 
@@ -15,7 +14,6 @@ public class TextWidget extends Widget {
 
     protected TextPaint paint;
     protected String text;
-    protected float fontSize;
     protected int color;
 
 
@@ -23,22 +21,14 @@ public class TextWidget extends Widget {
         super(WidgetType.TEXT, context.getString(R.string.pre_widget_text) + (lastWidgetId + 1), context);
         lastWidgetId++;
         text = name;
-        fontSize = context.getResources().getInteger(R.integer.def_widget_text_font_size);
         color = context.getResources().getColor(R.color.def_widget_text_color);
         icon = R.drawable.text;
     }
     public TextWidget(WidgetType type, String name, Context context){
         super(type, name, context);
-        fontSize = context.getResources().getInteger(R.integer.def_widget_text_font_size);
         color = context.getResources().getColor(R.color.def_widget_text_color);
     }
 
-    @Override
-    public void scale(float scaleFactor) {
-        fontSize = context.getResources().getInteger(R.integer.def_widget_text_font_size) * scaleFactor;
-        fontSize /= (float) (canvasBox.bottom - canvasBox.top);
-        Log.d("TW", "scale: " + scaleFactor);
-    }
 
     public String getText(){
         return text;
@@ -65,18 +55,24 @@ public class TextWidget extends Widget {
         paint = new TextPaint();
         paint.setAntiAlias(context.getResources().getBoolean(R.bool.set_antialiassing_flag));
         paint.setColor(color);
-        paint.setTextSize(fontSize * context.getResources().getDisplayMetrics().density);
-        fontSize /= (float) (canvasBox.bottom - canvasBox.top);
-        Log.d("TW", "sssss: " + fontSize);
+        paint.setTextSize(context.getResources().getInteger(R.integer.def_widget_text_font_size));
         super.init();
     }
 
+
     @Override
     public void draw(Canvas canvas) {
-        paint.setTextSize(canvas.getClipBounds().height() * fontSize * context.getResources().getDisplayMetrics().density);
-        canvas.drawText(getText(),
-                ServiceClass.getValue(x, canvas.getClipBounds().width()),
-                ServiceClass.getValue(y + getHeight(),
-                        canvas.getClipBounds().height()), paint);
+        canvas.drawText(getText(),0, getHeight() * canvasBox.height(), paint);
+    }
+
+
+    private static void setTextSizeForWidth(Paint paint, float desiredWidth, String text) {
+        final float testTextSize = 48f;
+
+        paint.setTextSize(testTextSize);
+        Rect bounds = new Rect();
+        paint.getTextBounds(text, 0, text.length(), bounds);
+        float desiredTextSize = testTextSize * desiredWidth / bounds.width();
+        paint.setTextSize(desiredTextSize);
     }
 }
