@@ -22,6 +22,9 @@ public class ScaleGestureDetector {
         return true;
     }
 
+    public void setScaleFactor(float scaleFactor) {
+        this.scaleFactor = scaleFactor;
+    }
 
     public interface OnScaleGestureListener{
         void OnScale(float scaleFactor);

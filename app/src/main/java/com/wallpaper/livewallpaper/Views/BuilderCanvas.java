@@ -2,9 +2,6 @@ package com.wallpaper.livewallpaper.Views;
 
 import android.content.Context;
 import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.DashPathEffect;
-import android.graphics.Paint;
 import android.graphics.Rect;
 import android.os.Build;
 import android.util.AttributeSet;
@@ -18,28 +15,35 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 import com.wallpaper.livewallpaper.GestureDetectors.MoveGestureDetector;
 import com.wallpaper.livewallpaper.GestureDetectors.RotateGestureDetector;
 import com.wallpaper.livewallpaper.GestureDetectors.ScaleGestureDetector;
+import com.wallpaper.livewallpaper.Guides.GuideBox;
+import com.wallpaper.livewallpaper.Guides.GuideLine;
 import com.wallpaper.livewallpaper.R;
 import com.wallpaper.livewallpaper.ServiceClass;
 import com.wallpaper.livewallpaper.Widgets.Widget;
 
 import java.util.ArrayList;
+import java.util.Hashtable;
 
 import static com.wallpaper.livewallpaper.Widgets.WidgetTransformation.moveWidgetRelative;
 
 public class BuilderCanvas extends View
         implements MoveGestureDetector.OnMoveGestureListener,
         ScaleGestureDetector.OnScaleGestureListener, RotateGestureDetector.OnRotateGestureListener {
+
     private ArrayList<Widget> widgets;
     private Widget selectedWidget;
-    private Paint widgetBoxPaint;
-    private Paint widgetBoxCornerPaint;
-    private Rect widgetBox;
-    private Rect widgetBoxCorner;
+
+    private Hashtable<GuideLine.Type, GuideLine> guideLines;
+    private GuideBox guideBox;
+
     private Rect canvasBox;
 
     private MoveGestureDetector moveGestureDetector;
     private ScaleGestureDetector scaleGestureDetector;
     private RotateGestureDetector rotateGestureDetector;
+
+    private static int POSITION_SNAP_THRESHOLD = 15; // pixels
+    private static int ROTATION_SNAP_THRESHOLD = 2; // degrees
 
     @RequiresApi(api = Build.VERSION_CODES.O)
     public BuilderCanvas(Context context, @Nullable AttributeSet attrs) {
@@ -48,29 +52,20 @@ public class BuilderCanvas extends View
     }
 
     private void init(){
-        widgetBoxPaint = new Paint();
-        widgetBoxPaint.setColor(
-                getContext().getResources().getColor(R.color.builder_canvas_selected_widget_box_stroke_color));
-        widgetBoxPaint.setStyle(Paint.Style.STROKE);
-        widgetBoxPaint.setStrokeWidth(
-                getContext().getResources().getInteger(R.integer.builder_canvas_selected_widget_box_stroke_width));
-        widgetBoxPaint.setPathEffect(new DashPathEffect(new float[]{
-                getContext().getResources().getInteger(R.integer.builder_canvas_selected_widget_box_stroke_dash),
-                getContext().getResources().getInteger(R.integer.builder_canvas_selected_widget_box_stroke_gap)},
-                0));
+        // initial values
+        guideBox = new GuideBox(getResources().getColor(R.color.builder_canvas_selected_widget_box_stroke_color),
+                getResources().getInteger(R.integer.builder_canvas_selected_widget_box_stroke_width),
+                getResources().getInteger(R.integer.builder_canvas_selected_widget_box_stroke_dash),
+                getResources().getInteger(R.integer.builder_canvas_selected_widget_box_stroke_gap),
+                getResources().getColor(R.color.builder_canvas_selected_widget_box_corner_color),
+                getResources().getInteger(R.integer.builder_canvas_selected_widget_box_corner_size)
+                );
 
-        widgetBoxCornerPaint = new Paint();
-        widgetBoxCornerPaint.setColor(
-                getContext().getResources().getColor(R.color.builder_canvas_selected_widget_box_corner_color));
-
-
-
-        widgetBox = new Rect();
-        widgetBoxCorner = new Rect();
         widgets = new ArrayList<Widget>();
         scaleGestureDetector = new ScaleGestureDetector(getContext(), this);
         moveGestureDetector = new MoveGestureDetector(this);
         rotateGestureDetector = new RotateGestureDetector(this);
+        guideLines = GuideLine.getInitGuideLines(getContext());
     }
 
     public void addWidget(Widget widget){
@@ -84,14 +79,13 @@ public class BuilderCanvas extends View
     }
 
 
-    public Widget getSelectedWidget() {
-        return selectedWidget;
-    }
-
     public void setSelectedWidget(String name) {
-        for(Widget widget : widgets)
-            if(widget.getName().equals(name))
+        for(Widget widget : widgets) {
+            if (widget.getName().equals(name)) {
                 selectedWidget = widget;
+                scaleGestureDetector.setScaleFactor(widget.getScale());
+            }
+        }
     }
 
     @Override
@@ -124,31 +118,14 @@ public class BuilderCanvas extends View
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
 
+        // recalculate guideLines
+        recalculateGuides();
+        // draw guideLines
+        drawGuideLines(canvas);
 
         // draw all the widgets
-        for(Widget widget : widgets) {
-            canvas.save();
-            canvas.translate(
-                    ServiceClass.getValue(widget.getX(), getCanvasWidth()),
-                    ServiceClass.getValue(widget.getY() + widget.getHeight(),getCanvasHeight()));
-            canvas.scale(widget.getScale(), widget.getScale()
-                    //,ServiceClass.getValue(widget.getX() + (widget.getWidth() * widget.getScale() / 2), getCanvasWidth()),
-                    //ServiceClass.getValue(widget.getY() + widget.getHeight() + (widget.getHeight() * widget.getScale() / 2),getCanvasHeight())
-            );
-            widget.draw(canvas);
-
-            Paint p = new Paint();
-            p.setColor(Color.RED);
-            p.setStyle(Paint.Style.STROKE);
-            p.setStrokeWidth(3);
-            canvas.drawRect(new Rect(0,0,getCanvasWidth(),getCanvasHeight()), p);
-
-            canvas.restore();
-
-            // draw box if needed
-            if(selectedWidget == widget)
-                drawWidgetBox(widget, canvas);
-        }
+        for(Widget widget : widgets)
+            drawWidget(widget, canvas);
 
         ConstraintLayout.LayoutParams layoutParams = new ConstraintLayout.LayoutParams(getCanvasWidth(), getCanvasHeight());
         layoutParams.leftToLeft = ((View)getParent()).getId();
@@ -158,35 +135,151 @@ public class BuilderCanvas extends View
         invalidate();
     }
 
-    private void drawWidgetBox(Widget widget, Canvas canvas){
+    private void recalculateGuides() {
+        // loop throught all widgets for position guideLines
+        for(Widget w : widgets){
+            if(selectedWidget == w)
+                continue;
+
+            // calculate distances
+            boolean snapLeft = (Math.abs(selectedWidget.getLeft() - w.getLeft()) <= POSITION_SNAP_THRESHOLD
+                    || Math.abs(selectedWidget.getRight() - w.getLeft()) <= POSITION_SNAP_THRESHOLD);
+            boolean snapRight = (Math.abs(selectedWidget.getLeft() - w.getRight()) <= POSITION_SNAP_THRESHOLD
+                    || Math.abs(selectedWidget.getRight() - w.getRight()) <= POSITION_SNAP_THRESHOLD);
+            boolean snapTop = (Math.abs(selectedWidget.getTop() - w.getTop()) <= POSITION_SNAP_THRESHOLD
+                    || Math.abs(selectedWidget.getBottom() - w.getTop()) <= POSITION_SNAP_THRESHOLD);
+            boolean snapBottom = (Math.abs(selectedWidget.getBottom() - w.getBottom()) <= POSITION_SNAP_THRESHOLD
+                    || Math.abs(selectedWidget.getTop() - w.getBottom()) <= POSITION_SNAP_THRESHOLD);
+
+            // check if the selected widget is within snapping threshold
+
+            GuideLine leftGuide = guideLines.get(GuideLine.Type.LEFT);
+            GuideLine rightGuide = guideLines.get(GuideLine.Type.RIGHT);
+            GuideLine topGuide = guideLines.get(GuideLine.Type.TOP);
+            GuideLine bottomGuide = guideLines.get(GuideLine.Type.BOTTOM);
+
+            leftGuide.setVisible(false);
+            rightGuide.setVisible(false);
+            topGuide.setVisible(false);
+            bottomGuide.setVisible(false);
+
+            if(snapLeft) {
+                leftGuide.setxStart(w.getLeft());
+                leftGuide.setyStart(0);
+                leftGuide.setxEnd(w.getLeft());
+                leftGuide.setyEnd(0);
+                leftGuide.setVisible(true);
+            }
+            if(snapRight) {
+                rightGuide.setxStart(w.getRight());
+                rightGuide.setyStart(0);
+                rightGuide.setxEnd(w.getRight());
+                rightGuide.setyEnd(0);
+                rightGuide.setVisible(true);
+            }
+            if(snapTop) {
+                topGuide.setxStart(0);
+                topGuide.setyStart(w.getTop());
+                topGuide.setxEnd(0);
+                topGuide.setyEnd(w.getTop());
+                topGuide.setVisible(true);
+            }
+            if(snapBottom) {
+                bottomGuide.setxStart(0);
+                bottomGuide.setyStart(w.getBottom());
+                bottomGuide.setxEnd(0);
+                bottomGuide.setyEnd(w.getBottom());
+                bottomGuide.setVisible(true);
+            }
+        }
+    }
+
+
+    private void drawWidget(Widget widget, Canvas canvas){
         canvas.save();
-        canvas.translate(
-                ServiceClass.getValue(widget.getX(), getCanvasWidth()),
-                ServiceClass.getValue(widget.getY() + widget.getHeight(),getCanvasHeight()));
 
-        byte stroke = (byte) widgetBoxPaint.getStrokeWidth();
-        widgetBox.left = -stroke;
-        widgetBox.top = -stroke;
-        widgetBox.right = (int) (widget.getWidth() * getCanvasWidth() * widget.getScale()) + (stroke * 2);
-        widgetBox.bottom = (int) (widget.getHeight() * getCanvasHeight() * widget.getScale()) + (stroke * 2);
-        canvas.drawRect(widgetBox, widgetBoxPaint);
+        if(widget != selectedWidget){
+            canvas.translate(widget.getX(), widget.getY());
+        }else{
+            GuideLine leftGuide = guideLines.get(GuideLine.Type.LEFT);
+            GuideLine rightGuide = guideLines.get(GuideLine.Type.RIGHT);
+            GuideLine topGuide = guideLines.get(GuideLine.Type.TOP);
+            GuideLine bottomGuide = guideLines.get(GuideLine.Type.BOTTOM);
 
-        drawWidgetBoxCorner(canvas, widgetBox.left, widgetBox.top);
-        drawWidgetBoxCorner(canvas, widgetBox.right, widgetBox.top);
-        drawWidgetBoxCorner(canvas, widgetBox.right, widgetBox.bottom);
-        drawWidgetBoxCorner(canvas, widgetBox.left, widgetBox.bottom);
+            if(leftGuide.isVisible())
+                canvas.translate(leftGuide.getxStart() + (widget.getWidth() / 2), widget.getY());
+            else
+                canvas.translate(widget.getX(), widget.getY());
+        }
+
+
+        canvas.rotate(-widget.getRotation());
+        canvas.scale(widget.getScale(), widget.getScale(), -widget.getWidth() / 2f, widget.getHeight() / 2f);
+        widget.draw(canvas);
+
+        canvas.restore();
+
+        // draw box if needed
+        if(selectedWidget == widget)
+            drawGuideBox(widget, canvas);
+    }
+
+    private void drawGuideBox(Widget widget, Canvas canvas){
+        canvas.save();
+        canvas.rotate(-widget.getRotation(), widget.getX(), widget.getY());
+
+        int stroke = getResources().getInteger(R.integer.builder_canvas_position_guide_stroke_width);
+        int halfWidth = (int) (widget.getWidth() / 2);
+        int halfHeight = (int) (widget.getHeight() / 2);
+
+        GuideLine leftGuide = guideLines.get(GuideLine.Type.LEFT);
+        GuideLine rightGuide = guideLines.get(GuideLine.Type.RIGHT);
+        GuideLine topGuide = guideLines.get(GuideLine.Type.TOP);
+        GuideLine bottomGuide = guideLines.get(GuideLine.Type.BOTTOM);
+
+        if(leftGuide.isVisible()) {
+            guideBox.setLeft(leftGuide.getxStart() - stroke);
+            guideBox.setRight(leftGuide.getxStart() + (halfWidth * 2) + stroke);
+            guideBox.setTop(widget.getY() - halfHeight - stroke);
+            guideBox.setBottom(widget.getY() + halfHeight + stroke);
+        }
+        else if(rightGuide.isVisible()) {
+            guideBox.setLeft(rightGuide.getxStart() - (halfWidth * 2) - stroke);
+            guideBox.setRight(rightGuide.getxStart() + stroke);
+            guideBox.setTop(widget.getY() - halfHeight - stroke);
+            guideBox.setBottom(widget.getY() + halfHeight + stroke);
+        }
+        else if(topGuide.isVisible()) {
+            guideBox.setLeft(widget.getX() - halfWidth - stroke);
+            guideBox.setRight(widget.getX() + halfWidth + stroke);
+            guideBox.setTop(topGuide.getyStart() - stroke);
+            guideBox.setBottom(topGuide.getyStart() + (halfHeight * 2) + stroke);
+        }
+        else if(bottomGuide.isVisible()) {
+            guideBox.setLeft(widget.getX() - halfWidth - stroke);
+            guideBox.setRight(widget.getX() + halfWidth + stroke);
+            guideBox.setTop(bottomGuide.getyStart() - (halfHeight * 2) - stroke);
+            guideBox.setBottom(bottomGuide.getyStart() + stroke);
+        }
+        else{
+            guideBox.setLeft(widget.getX() - halfWidth - stroke);
+            guideBox.setRight(widget.getX() + halfWidth + stroke);
+            guideBox.setTop(widget.getY() - halfHeight - stroke);
+            guideBox.setBottom(widget.getY() + halfHeight + stroke);
+        }
+
+        guideBox.draw(canvas);
 
         canvas.restore();
     }
 
-    private void drawWidgetBoxCorner(Canvas canvas, int xCenter, int yCenter){
-        byte halfCornerSize = (byte) (getContext().getResources()
-                .getInteger(R.integer.builder_canvas_selected_widget_box_corner_size) / 2f);
-        widgetBoxCorner.left = xCenter - halfCornerSize;
-        widgetBoxCorner.top = yCenter - halfCornerSize;
-        widgetBoxCorner.right = xCenter + halfCornerSize;
-        widgetBoxCorner.bottom = yCenter + halfCornerSize;
-        canvas.drawRect(widgetBoxCorner, widgetBoxCornerPaint);
+    private void drawGuideLines(Canvas canvas){
+        for(GuideLine g : guideLines.values()){
+            if(!g.isVisible())
+                continue;
+
+            g.draw(canvas);
+        }
     }
 
 
@@ -194,17 +287,14 @@ public class BuilderCanvas extends View
     public boolean onTouchEvent(MotionEvent event) {
         scaleGestureDetector.onTouchEvent(event);
         moveGestureDetector.onTouchEvent(event);
-        //rotateGestureDetector.onTouchEvent(event);
+        rotateGestureDetector.onTouchEvent(event);
         return true;
     }
 
     @Override
     public void OnMove(int deltaX, int deltaY) {
-        if(selectedWidget != null) {
-            moveWidgetRelative(selectedWidget,
-                    ServiceClass.getPercent(deltaX, getCanvasWidth()),
-                    ServiceClass.getPercent(deltaY, getCanvasHeight()));
-        }
+        if(selectedWidget != null)
+            moveWidgetRelative(selectedWidget, deltaX, deltaY);
     }
 
     @Override
@@ -214,6 +304,6 @@ public class BuilderCanvas extends View
 
     @Override
     public void OnRotate(float degrees) {
-        selectedWidget.setRotation(degrees);
+        selectedWidget.setRotation(selectedWidget.getRotation() + degrees);
     }
 }

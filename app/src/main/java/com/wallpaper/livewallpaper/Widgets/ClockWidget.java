@@ -1,7 +1,6 @@
 package com.wallpaper.livewallpaper.Widgets;
 
 import android.content.Context;
-import android.graphics.Rect;
 import android.os.Build;
 
 import androidx.annotation.RequiresApi;
@@ -33,17 +32,15 @@ public class ClockWidget extends TextWidget {
 
     @Override
     public float getWidth() {
-        Rect bounds = new Rect();
-        paint.getTextBounds("00:00:00", 0, "00:00:00".length(), bounds);
-        float width = bounds.width();
-        return width / (canvasBox.right - canvasBox.left);
+        paint.getTextBounds("00:00:00", 0, "00:00:00".length(), sizeBox);
+        float width = sizeBox.width();
+        return width * scale;
     }
 
     @Override
     public float getHeight() {
-        Rect bounds = new Rect();
-        paint.getTextBounds("00:00:00", 0, "00:00:00".length(), bounds);
-        float height = bounds.height();
-        return height / (canvasBox.bottom - canvasBox.top);
+        paint.getTextBounds("00:00:00", 0, "00:00:00".length(), sizeBox);
+        float height = sizeBox.height();
+        return height * scale;
     }
 }

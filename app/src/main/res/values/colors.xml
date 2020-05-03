@@ -8,5 +8,7 @@
     <!-- Colors to use in code -->
     <color name="builder_canvas_selected_widget_box_stroke_color">#00FFE1</color>
     <color name="builder_canvas_selected_widget_box_corner_color">#00FFE1</color>
+    <color name="builder_canvas_position_guide_color">#FFA200</color>
+    <color name="builder_canvas_rotation_guide_color">#00FFE1</color>
     <color name="def_widget_text_color">#FFFFFF</color>
 </resources>

@@ -9,4 +9,12 @@
     <integer name="builder_canvas_selected_widget_box_stroke_dash">20</integer>
     <integer name="builder_canvas_selected_widget_box_stroke_gap">20</integer>
     <integer name="builder_canvas_selected_widget_box_corner_size">20</integer>
+
+    <integer name="builder_canvas_position_guide_stroke_width">4</integer>
+    <integer name="builder_canvas_position_guide_stroke_dash">20</integer>
+    <integer name="builder_canvas_position_guide_stroke_gap">20</integer>
+
+    <integer name="builder_canvas_rotation_guide_stroke_width">4</integer>
+    <integer name="builder_canvas_rotation_guide_stroke_dash">20</integer>
+    <integer name="builder_canvas_rotation_guide_stroke_gap">20</integer>
 </resources>

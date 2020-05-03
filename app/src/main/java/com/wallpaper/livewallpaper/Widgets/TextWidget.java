@@ -2,7 +2,6 @@ package com.wallpaper.livewallpaper.Widgets;
 
 import android.content.Context;
 import android.graphics.Canvas;
-import android.graphics.Paint;
 import android.graphics.Rect;
 import android.text.TextPaint;
 
@@ -15,6 +14,7 @@ public class TextWidget extends Widget {
     protected TextPaint paint;
     protected String text;
     protected int color;
+    protected Rect sizeBox;
 
 
     public TextWidget(Context context){
@@ -23,10 +23,12 @@ public class TextWidget extends Widget {
         text = name;
         color = context.getResources().getColor(R.color.def_widget_text_color);
         icon = R.drawable.text;
+        sizeBox = new Rect();
     }
     public TextWidget(WidgetType type, String name, Context context){
         super(type, name, context);
         color = context.getResources().getColor(R.color.def_widget_text_color);
+        sizeBox = new Rect();
     }
 
 
@@ -36,18 +38,16 @@ public class TextWidget extends Widget {
 
     @Override
     public float getWidth() {
-        Rect bounds = new Rect();
-        paint.getTextBounds(text, 0, text.length(), bounds);
-        float width = bounds.width();
-        return width / (canvasBox.right - canvasBox.left);
+        paint.getTextBounds(text, 0, text.length(), sizeBox);
+        float width = sizeBox.width();
+        return width * scale;
     }
 
     @Override
     public float getHeight() {
-        Rect bounds = new Rect();
-        paint.getTextBounds(text, 0, text.length(), bounds);
-        float height = bounds.height();
-        return height / (canvasBox.bottom - canvasBox.top);
+        paint.getTextBounds(text, 0, text.length(), sizeBox);
+        float height = sizeBox.height();
+        return height * scale;
     }
 
     @Override
@@ -62,10 +62,12 @@ public class TextWidget extends Widget {
 
     @Override
     public void draw(Canvas canvas) {
-        canvas.drawText(getText(),0, getHeight() * canvasBox.height(), paint);
+        // draw text so that it is centered at 0,0
+        // anchor-point change here
+        canvas.drawText(getText(), -getWidth() / 2f, getHeight() / 2f, paint);
     }
 
-
+    /*
     private static void setTextSizeForWidth(Paint paint, float desiredWidth, String text) {
         final float testTextSize = 48f;
 
@@ -75,4 +77,5 @@ public class TextWidget extends Widget {
         float desiredTextSize = testTextSize * desiredWidth / bounds.width();
         paint.setTextSize(desiredTextSize);
     }
+*/
 }

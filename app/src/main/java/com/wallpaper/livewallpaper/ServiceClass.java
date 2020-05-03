@@ -72,8 +72,8 @@ public class ServiceClass {
      * Gets value in percentage
      * @return
      */
-    public static float getPercent(float value, float maxValue){
-        return value / maxValue;
+    public static float getPercent(int value, int maxValue){
+        return (float) value / (float)maxValue;
     }
 
 
@@ -81,8 +81,8 @@ public class ServiceClass {
      * Gets value from percent
      * @return
      */
-    public static float getValue(float percent, float maxValue){
-        return percent * maxValue;
+    public static int getValue(float percent, int maxValue){
+        return (int) (percent * maxValue);
     }
 
 
