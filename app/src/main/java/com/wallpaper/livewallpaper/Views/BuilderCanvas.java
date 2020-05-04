@@ -122,6 +122,9 @@ public class BuilderCanvas extends View
         recalculateGuides();
         // draw guideLines
         drawGuideLines(canvas);
+        // draw box if needed
+        if(selectedWidget != null)
+            drawGuideBox(selectedWidget, canvas);
 
         // draw all the widgets
         for(Widget widget : widgets)
@@ -141,17 +144,16 @@ public class BuilderCanvas extends View
             if(selectedWidget == w)
                 continue;
 
-            // calculate distances
-            boolean snapLeft = (Math.abs(selectedWidget.getLeft() - w.getLeft()) <= POSITION_SNAP_THRESHOLD
-                    || Math.abs(selectedWidget.getRight() - w.getLeft()) <= POSITION_SNAP_THRESHOLD);
-            boolean snapRight = (Math.abs(selectedWidget.getLeft() - w.getRight()) <= POSITION_SNAP_THRESHOLD
-                    || Math.abs(selectedWidget.getRight() - w.getRight()) <= POSITION_SNAP_THRESHOLD);
-            boolean snapTop = (Math.abs(selectedWidget.getTop() - w.getTop()) <= POSITION_SNAP_THRESHOLD
-                    || Math.abs(selectedWidget.getBottom() - w.getTop()) <= POSITION_SNAP_THRESHOLD);
-            boolean snapBottom = (Math.abs(selectedWidget.getBottom() - w.getBottom()) <= POSITION_SNAP_THRESHOLD
-                    || Math.abs(selectedWidget.getTop() - w.getBottom()) <= POSITION_SNAP_THRESHOLD);
-
+            // calculate distances and
             // check if the selected widget is within snapping threshold
+            boolean snapLeftToLeft = Math.abs(selectedWidget.getLeft() - w.getLeft()) <= POSITION_SNAP_THRESHOLD;
+            boolean snapLeftToRight = Math.abs(selectedWidget.getLeft() - w.getRight()) <= POSITION_SNAP_THRESHOLD;
+            boolean snapRightToRight = Math.abs(selectedWidget.getRight() - w.getRight()) <= POSITION_SNAP_THRESHOLD;
+            boolean snapRightToLeft = Math.abs(selectedWidget.getRight() - w.getLeft()) <= POSITION_SNAP_THRESHOLD;
+            boolean snapTopToTop = Math.abs(selectedWidget.getTop() - w.getTop()) <= POSITION_SNAP_THRESHOLD;
+            boolean snapTopToBottom = Math.abs(selectedWidget.getTop() - w.getBottom()) <= POSITION_SNAP_THRESHOLD;
+            boolean snapBottomToBottom = Math.abs(selectedWidget.getBottom() - w.getBottom()) <= POSITION_SNAP_THRESHOLD;
+            boolean snapBottomToTop = Math.abs(selectedWidget.getBottom() - w.getTop()) <= POSITION_SNAP_THRESHOLD;
 
             GuideLine leftGuide = guideLines.get(GuideLine.Type.LEFT);
             GuideLine rightGuide = guideLines.get(GuideLine.Type.RIGHT);
@@ -163,33 +165,42 @@ public class BuilderCanvas extends View
             topGuide.setVisible(false);
             bottomGuide.setVisible(false);
 
-            if(snapLeft) {
+            int halfHoriz = (selectedWidget.getRight() - selectedWidget.getLeft()) / 2;
+            int halfVert = (selectedWidget.getBottom() - selectedWidget.getTop()) / 2;
+
+            // calculate guide line start and end xy
+            // also set selected widget position
+            if(snapLeftToLeft || snapRightToLeft) {
                 leftGuide.setxStart(w.getLeft());
                 leftGuide.setyStart(0);
                 leftGuide.setxEnd(w.getLeft());
-                leftGuide.setyEnd(0);
+                leftGuide.setyEnd(w.getCanvasBox().height());
                 leftGuide.setVisible(true);
+                selectedWidget.setX(w.getLeft() + ((snapLeftToLeft) ? halfVert : -halfVert));
             }
-            if(snapRight) {
+            if(snapRightToRight || snapLeftToRight) {
                 rightGuide.setxStart(w.getRight());
                 rightGuide.setyStart(0);
                 rightGuide.setxEnd(w.getRight());
-                rightGuide.setyEnd(0);
+                rightGuide.setyEnd(w.getCanvasBox().height());
                 rightGuide.setVisible(true);
+                selectedWidget.setX(w.getRight() + ((snapRightToRight) ? -halfVert : halfVert));
             }
-            if(snapTop) {
+            if(snapTopToTop || snapBottomToTop) {
                 topGuide.setxStart(0);
                 topGuide.setyStart(w.getTop());
-                topGuide.setxEnd(0);
+                topGuide.setxEnd(w.getCanvasBox().width());
                 topGuide.setyEnd(w.getTop());
                 topGuide.setVisible(true);
+                selectedWidget.setY(w.getTop() + ((snapTopToTop) ? halfHoriz : -halfHoriz));
             }
-            if(snapBottom) {
+            if(snapBottomToBottom || snapTopToBottom) {
                 bottomGuide.setxStart(0);
                 bottomGuide.setyStart(w.getBottom());
-                bottomGuide.setxEnd(0);
+                bottomGuide.setxEnd(w.getCanvasBox().width());
                 bottomGuide.setyEnd(w.getBottom());
                 bottomGuide.setVisible(true);
+                selectedWidget.setY(w.getBottom() + ((snapBottomToBottom) ? -halfHoriz : halfHoriz));
             }
         }
     }
@@ -198,30 +209,12 @@ public class BuilderCanvas extends View
     private void drawWidget(Widget widget, Canvas canvas){
         canvas.save();
 
-        if(widget != selectedWidget){
-            canvas.translate(widget.getX(), widget.getY());
-        }else{
-            GuideLine leftGuide = guideLines.get(GuideLine.Type.LEFT);
-            GuideLine rightGuide = guideLines.get(GuideLine.Type.RIGHT);
-            GuideLine topGuide = guideLines.get(GuideLine.Type.TOP);
-            GuideLine bottomGuide = guideLines.get(GuideLine.Type.BOTTOM);
-
-            if(leftGuide.isVisible())
-                canvas.translate(leftGuide.getxStart() + (widget.getWidth() / 2), widget.getY());
-            else
-                canvas.translate(widget.getX(), widget.getY());
-        }
-
-
+        canvas.translate(widget.getX(), widget.getY());
         canvas.rotate(-widget.getRotation());
         canvas.scale(widget.getScale(), widget.getScale(), -widget.getWidth() / 2f, widget.getHeight() / 2f);
         widget.draw(canvas);
 
         canvas.restore();
-
-        // draw box if needed
-        if(selectedWidget == widget)
-            drawGuideBox(widget, canvas);
     }
 
     private void drawGuideBox(Widget widget, Canvas canvas){
@@ -232,41 +225,10 @@ public class BuilderCanvas extends View
         int halfWidth = (int) (widget.getWidth() / 2);
         int halfHeight = (int) (widget.getHeight() / 2);
 
-        GuideLine leftGuide = guideLines.get(GuideLine.Type.LEFT);
-        GuideLine rightGuide = guideLines.get(GuideLine.Type.RIGHT);
-        GuideLine topGuide = guideLines.get(GuideLine.Type.TOP);
-        GuideLine bottomGuide = guideLines.get(GuideLine.Type.BOTTOM);
-
-        if(leftGuide.isVisible()) {
-            guideBox.setLeft(leftGuide.getxStart() - stroke);
-            guideBox.setRight(leftGuide.getxStart() + (halfWidth * 2) + stroke);
-            guideBox.setTop(widget.getY() - halfHeight - stroke);
-            guideBox.setBottom(widget.getY() + halfHeight + stroke);
-        }
-        else if(rightGuide.isVisible()) {
-            guideBox.setLeft(rightGuide.getxStart() - (halfWidth * 2) - stroke);
-            guideBox.setRight(rightGuide.getxStart() + stroke);
-            guideBox.setTop(widget.getY() - halfHeight - stroke);
-            guideBox.setBottom(widget.getY() + halfHeight + stroke);
-        }
-        else if(topGuide.isVisible()) {
-            guideBox.setLeft(widget.getX() - halfWidth - stroke);
-            guideBox.setRight(widget.getX() + halfWidth + stroke);
-            guideBox.setTop(topGuide.getyStart() - stroke);
-            guideBox.setBottom(topGuide.getyStart() + (halfHeight * 2) + stroke);
-        }
-        else if(bottomGuide.isVisible()) {
-            guideBox.setLeft(widget.getX() - halfWidth - stroke);
-            guideBox.setRight(widget.getX() + halfWidth + stroke);
-            guideBox.setTop(bottomGuide.getyStart() - (halfHeight * 2) - stroke);
-            guideBox.setBottom(bottomGuide.getyStart() + stroke);
-        }
-        else{
-            guideBox.setLeft(widget.getX() - halfWidth - stroke);
-            guideBox.setRight(widget.getX() + halfWidth + stroke);
-            guideBox.setTop(widget.getY() - halfHeight - stroke);
-            guideBox.setBottom(widget.getY() + halfHeight + stroke);
-        }
+        guideBox.setLeft(widget.getX() - halfWidth - stroke);
+        guideBox.setRight(widget.getX() + halfWidth + stroke);
+        guideBox.setTop(widget.getY() - halfHeight - stroke);
+        guideBox.setBottom(widget.getY() + halfHeight + stroke);
 
         guideBox.draw(canvas);
 
@@ -274,12 +236,9 @@ public class BuilderCanvas extends View
     }
 
     private void drawGuideLines(Canvas canvas){
-        for(GuideLine g : guideLines.values()){
-            if(!g.isVisible())
-                continue;
-
-            g.draw(canvas);
-        }
+        for(GuideLine g : guideLines.values())
+            if(g.isVisible())
+                g.draw(canvas);
     }
 
 
@@ -299,11 +258,13 @@ public class BuilderCanvas extends View
 
     @Override
     public void OnScale(float scaleFactor) {
-        selectedWidget.setScale(scaleFactor);
+        if(selectedWidget != null)
+            selectedWidget.setScale(scaleFactor);
     }
 
     @Override
     public void OnRotate(float degrees) {
-        selectedWidget.setRotation(selectedWidget.getRotation() + degrees);
+        if(selectedWidget != null)
+            selectedWidget.setRotation(selectedWidget.getRotation() + degrees);
     }
 }

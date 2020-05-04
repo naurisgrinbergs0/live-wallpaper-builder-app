@@ -63,7 +63,8 @@ public class GuideLine extends Guide{
         LEFT,
         RIGHT,
         TOP,
-        BOTTOM
+        BOTTOM,
+        NONE
     }
 
 
