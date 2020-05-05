@@ -1,7 +1,10 @@
 package com.wallpaper.livewallpaper;
 
 import android.app.Activity;
+import android.content.Context;
 import android.os.Build;
+import android.os.VibrationEffect;
+import android.os.Vibrator;
 import android.util.DisplayMetrics;
 
 import androidx.annotation.RequiresApi;
@@ -94,5 +97,10 @@ public class ServiceClass {
         activity.getWindowManager().getDefaultDisplay().getRealMetrics(displayMetrics);
         REAL_HEIGHT = displayMetrics.heightPixels;
         REAL_WIDTH = displayMetrics.widthPixels;
+    }
+
+    public static void vibrate(Context context){
+        Vibrator vibrator = (Vibrator) context.getSystemService(Context.VIBRATOR_SERVICE);
+        VibrationEffect.createOneShot(3, VibrationEffect.DEFAULT_AMPLITUDE);
     }
 }

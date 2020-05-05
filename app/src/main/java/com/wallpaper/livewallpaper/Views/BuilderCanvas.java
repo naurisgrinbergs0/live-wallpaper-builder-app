@@ -139,6 +139,18 @@ public class BuilderCanvas extends View
     }
 
     private void recalculateGuides() {
+        // get guides
+        GuideLine leftGuide = guideLines.get(GuideLine.Type.LEFT);
+        GuideLine rightGuide = guideLines.get(GuideLine.Type.RIGHT);
+        GuideLine topGuide = guideLines.get(GuideLine.Type.TOP);
+        GuideLine bottomGuide = guideLines.get(GuideLine.Type.BOTTOM);
+
+        // set guides to invisible
+        leftGuide.setVisible(false);
+        rightGuide.setVisible(false);
+        topGuide.setVisible(false);
+        bottomGuide.setVisible(false);
+
         // loop throught all widgets for position guideLines
         for(Widget w : widgets){
             if(selectedWidget == w)
@@ -155,16 +167,6 @@ public class BuilderCanvas extends View
             boolean snapBottomToBottom = Math.abs(selectedWidget.getBottom() - w.getBottom()) <= POSITION_SNAP_THRESHOLD;
             boolean snapBottomToTop = Math.abs(selectedWidget.getBottom() - w.getTop()) <= POSITION_SNAP_THRESHOLD;
 
-            GuideLine leftGuide = guideLines.get(GuideLine.Type.LEFT);
-            GuideLine rightGuide = guideLines.get(GuideLine.Type.RIGHT);
-            GuideLine topGuide = guideLines.get(GuideLine.Type.TOP);
-            GuideLine bottomGuide = guideLines.get(GuideLine.Type.BOTTOM);
-
-            leftGuide.setVisible(false);
-            rightGuide.setVisible(false);
-            topGuide.setVisible(false);
-            bottomGuide.setVisible(false);
-
             int halfHoriz = (selectedWidget.getRight() - selectedWidget.getLeft()) / 2;
             int halfVert = (selectedWidget.getBottom() - selectedWidget.getTop()) / 2;
 
@@ -176,7 +178,7 @@ public class BuilderCanvas extends View
                 leftGuide.setxEnd(w.getLeft());
                 leftGuide.setyEnd(w.getCanvasBox().height());
                 leftGuide.setVisible(true);
-                selectedWidget.setX(w.getLeft() + ((snapLeftToLeft) ? halfVert : -halfVert));
+                selectedWidget.setX(w.getLeft() + ((snapLeftToLeft) ? halfHoriz : -halfHoriz));
             }
             if(snapRightToRight || snapLeftToRight) {
                 rightGuide.setxStart(w.getRight());
@@ -184,7 +186,7 @@ public class BuilderCanvas extends View
                 rightGuide.setxEnd(w.getRight());
                 rightGuide.setyEnd(w.getCanvasBox().height());
                 rightGuide.setVisible(true);
-                selectedWidget.setX(w.getRight() + ((snapRightToRight) ? -halfVert : halfVert));
+                selectedWidget.setX(w.getRight() + ((snapRightToRight) ? -halfHoriz : halfHoriz));
             }
             if(snapTopToTop || snapBottomToTop) {
                 topGuide.setxStart(0);
@@ -192,7 +194,7 @@ public class BuilderCanvas extends View
                 topGuide.setxEnd(w.getCanvasBox().width());
                 topGuide.setyEnd(w.getTop());
                 topGuide.setVisible(true);
-                selectedWidget.setY(w.getTop() + ((snapTopToTop) ? halfHoriz : -halfHoriz));
+                selectedWidget.setY(w.getTop() + ((snapTopToTop) ? halfVert : -halfVert));
             }
             if(snapBottomToBottom || snapTopToBottom) {
                 bottomGuide.setxStart(0);
@@ -200,7 +202,7 @@ public class BuilderCanvas extends View
                 bottomGuide.setxEnd(w.getCanvasBox().width());
                 bottomGuide.setyEnd(w.getBottom());
                 bottomGuide.setVisible(true);
-                selectedWidget.setY(w.getBottom() + ((snapBottomToBottom) ? -halfHoriz : halfHoriz));
+                selectedWidget.setY(w.getBottom() + ((snapBottomToBottom) ? -halfVert : halfVert));
             }
         }
     }
